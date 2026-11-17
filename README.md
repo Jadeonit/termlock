@@ -25,7 +25,7 @@ animated matrix rain.*
 - global hotkey `Ctrl+Alt+Shift+L`
 - passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
 - attempt counter with a cooldown
-- tray icon: lock / open config folder / exit
+- tray icon: lock / set passphrase / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
 - single instance, append-only log
 - frozen digit field (Day 2 turns it into real matrix rain)
@@ -114,6 +114,7 @@ dotnet publish src/TermLock/TermLock.csproj -c Release -r win-x64 --self-contain
 TermLock.exe --install     # add to HKCU Run
 TermLock.exe --uninstall   # remove from HKCU Run
 TermLock.exe --disable     # exit immediately (emergency switch)
+TermLock.exe --setup       # set or change the passphrase
 ```
 
 Run `--install` from the **published** exe. If you install from `dotnet run`, the
