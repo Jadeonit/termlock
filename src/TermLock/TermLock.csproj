@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>TermLock</AssemblyName>
+    <RootNamespace>TermLock</RootNamespace>
+    <Version>0.1.0</Version>
+    <Authors>Jadeonit</Authors>
+    <Product>TermLock</Product>
+    <Description>Terminal-style privacy curtain for Windows.</Description>
+    <RepositoryUrl>https://github.com/Jadeonit/termlock</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>

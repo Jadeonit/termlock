@@ -1,0 +1,151 @@
+# TermLock
+
+> A privacy curtain for Windows with a terminal soul.
+
+TermLock does **not** replace your Windows password, does **not** encrypt your disk,
+and does **not** lock the Windows session. It covers the desktop with a fullscreen
+terminal when you step away, and only your passphrase brings it back.
+
+That makes it a *privacy curtain*: perfect against a family member glancing at the
+laptop, useless against someone who knows what they are doing. See
+[docs/SECURITY.md](docs/SECURITY.md) for the honest version.
+
+## Status
+
+**v0.1 — Day 1 of 10.** Small daily commits, one feature at a time.
+
+![TermLock Day 1](docs/screenshot-day1.png)
+
+*Day 1 render: real layout, frozen digit field. Day 2 replaces the field with
+animated matrix rain.*
+
+### Works today
+
+- fullscreen, borderless, topmost terminal curtain across the whole virtual desktop
+- global hotkey `Ctrl+Alt+Shift+L`
+- passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
+- attempt counter with a cooldown
+- tray icon: lock / open config folder / exit
+- autostart via `HKCU\...\Run` (no admin, no service, no driver)
+- single instance, append-only log
+- frozen digit field (Day 2 turns it into real matrix rain)
+
+### Planned
+
+- animated matrix rain renderer (glyph atlas + `WriteableBitmap`)
+- real system probes: CPU, RAM, disk, Defender, firewall, Secure Boot
+- keyboard hook: block `Win`, `Alt+Tab`, `Alt+F4` while locked
+- double-tap Caps Lock trigger
+- watchdog process
+- USB key unlock
+- recovery code
+- ntfy alerts on failed attempts (phone + watch)
+- configurable action after 3 failed attempts (Shutdown by default)
+- guest mode — postponed for now
+
+See [ROADMAP.md](ROADMAP.md).
+
+## Requirements
+
+- Windows 10 or 11, x64
+- .NET 9 Desktop Runtime for the framework-dependent build, or build from source
+
+## Build
+
+```powershell
+git clone https://github.com/Jadeonit/termlock.git
+cd termlock
+dotnet build TermLock.sln -c Release
+```
+
+## Run
+
+```powershell
+# start hidden in the tray, press Ctrl+Alt+Shift+L to lock
+dotnet run --project src/TermLock
+
+# start and lock immediately
+dotnet run --project src/TermLock -- --lock
+```
+
+On the first run TermLock asks for a passphrase. It is stored as a PBKDF2 hash in
+`%APPDATA%\TermLock\config.json` — never in plaintext.
+
+## Publish
+
+```powershell
+# small exe, needs the .NET 9 Desktop Runtime
+dotnet publish src/TermLock/TermLock.csproj -c Release -r win-x64 --self-contained false -o publish
+
+# standalone exe, no runtime needed
+dotnet publish src/TermLock/TermLock.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+```
+
+## Autostart
+
+```powershell
+TermLock.exe --install     # add to HKCU Run
+TermLock.exe --uninstall   # remove from HKCU Run
+TermLock.exe --disable     # exit immediately (emergency switch)
+```
+
+Run `--install` from the **published** exe. If you install from `dotnet run`, the
+registry will point at the SDK host instead of TermLock.
+
+## Hotkey
+
+| Keys | Action |
+|---|---|
+| `Ctrl+Alt+Shift+L` | show the curtain |
+| `Esc` | clear the input line (never unlocks) |
+| `Ctrl+U` | clear the input line |
+| `Enter` | check the passphrase |
+
+While the curtain is visible it is topmost, covers every monitor, and refuses
+`Alt+F4`. It does not block `Ctrl+Alt+Del` — nothing user-mode can.
+
+## Where things live
+
+| Path | Purpose |
+|---|---|
+| `%APPDATA%\TermLock\config.json` | settings and passphrase hash |
+| `%APPDATA%\TermLock\logs\termlock.log` | auth and lifecycle events |
+| `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\TermLock` | autostart entry |
+
+## Reset / emergency
+
+- Kill `TermLock` in Task Manager (the session is never locked, nothing breaks).
+- Delete `%APPDATA%\TermLock\config.json` to forget the passphrase and set a new one.
+- `TermLock.exe --uninstall` removes autostart.
+- `TermLock.exe --disable` is a one-shot "do not start" flag for scripts.
+
+These exits are intentional. TermLock is a curtain, not a lock: it must never be
+able to lock *you* out of your own machine.
+
+## Docs
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — why an overlay, how the pieces fit
+- [docs/CODE.md](docs/CODE.md) — walkthrough of the code (in Russian, for learning)
+- [docs/NTFY.md](docs/NTFY.md) — phone/watch notifications with ntfy (in Russian)
+- [docs/SECURITY.md](docs/SECURITY.md) — threat model and honest limitations
+
+## Credits
+
+- **Jadeonit** — idea, requirements, testing.
+- **DeepSeek V4.1 Flash 1017** (OpenCode Go) — architecture, code, documentation, review.
+
+Commits created with AI assistance carry an `Assisted-by: DeepSeek V4.1 Flash 1017 (OpenCode Go)` trailer.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+## Кратко по-русски
+
+TermLock — это «ширма» для ноутбука: по горячей клавише экран закрывается
+терминалом, а открывается только кодовой фразой. Сессия Windows не блокируется,
+поэтому серверы и удалённая работа продолжают жить. Это защита от любопытных
+домашних, а не от взлома: диск не шифруется, пароль Windows не меняется.
+Подробности — в [docs/SECURITY.md](docs/SECURITY.md).

@@ -1,0 +1,25 @@
+# Build output
+bin/
+obj/
+artifacts/
+publish/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Test output
+TestResults/
+coverage/
+
+# Local overrides and secrets
+config.local.json
+*.local.json
+.env
+.env.*
+
+# Logs
+*.log
