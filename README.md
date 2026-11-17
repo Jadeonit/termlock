@@ -71,6 +71,33 @@ dotnet run --project src/TermLock -- --lock
 On the first run TermLock asks for a passphrase. It is stored as a PBKDF2 hash in
 `%APPDATA%\TermLock\config.json` — never in plaintext.
 
+## Set or change the passphrase
+
+**First run.** Launch `TermLock.exe` from Explorer or a normal PowerShell window.
+A black `TERMLOCK // PASSPHRASE` window appears in the center of the screen:
+
+1. Type a passphrase of 8 or more characters.
+2. Press `Tab` (or `Enter`) to move to the second field.
+3. Type the same passphrase again.
+4. Press `Enter` (or click `[ create ]`).
+
+**Later.** Right-click the tray icon → `Set passphrase...`, or run:
+
+```powershell
+TermLock.exe --setup
+```
+
+`--setup` always opens the dialog, even when a passphrase already exists. Use it
+when TermLock is not running; the tray menu applies changes immediately.
+
+If you forget the passphrase, delete `%APPDATA%\TermLock\config.json` and run
+`--setup` again. This is intentional: a curtain must never lock *you* out.
+
+> If you launch TermLock from an IDE or agent terminal that lives on another
+> virtual desktop, the window may open there and you will not see it. Launch it
+> from Explorer or a normal PowerShell window instead.
+
+
 ## Publish
 
 ```powershell
@@ -128,13 +155,6 @@ able to lock *you* out of your own machine.
 - [docs/CODE.md](docs/CODE.md) — walkthrough of the code (in Russian, for learning)
 - [docs/NTFY.md](docs/NTFY.md) — phone/watch notifications with ntfy (in Russian)
 - [docs/SECURITY.md](docs/SECURITY.md) — threat model and honest limitations
-
-## Credits
-
-- **Jadeonit** — idea, requirements, testing.
-- **DeepSeek V4.1 Flash 1017** (OpenCode Go) — architecture, code, documentation, review.
-
-Commits created with AI assistance carry an `Assisted-by: DeepSeek V4.1 Flash 1017 (OpenCode Go)` trailer.
 
 ## License
 

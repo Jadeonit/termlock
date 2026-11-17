@@ -67,18 +67,18 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0"
-                   Text="TERMLOCK // FIRST RUN"
+                   Text="TERMLOCK // PASSPHRASE"
                    FontSize="20"
                    Foreground="#00FF66" />
 
         <TextBlock Grid.Row="1"
                    Margin="0,8,0,20"
-                   Text="Set the passphrase that dismisses the curtain."
+                   Text="Set or replace the passphrase. Tab moves to the next field, Enter saves."
                    Foreground="#0A8F3C" />
 
         <TextBlock Grid.Row="2"
                    Margin="0,0,0,6"
-                   Text="passphrase  (min 8 characters)"
+                   Text="passphrase  (8+ characters, words are easier to remember)"
                    Foreground="#0A8F3C" />
         <PasswordBox x:Name="Pass1"
                      Grid.Row="3"
@@ -106,7 +106,7 @@
         <StackPanel Grid.Row="7"
                     Margin="0,18,0,0"
                     Orientation="Horizontal">
-            <Button Content="[ create ]" Click="OnCreate" />
+            <Button Content="[ save ]" Click="OnCreate" />
             <Button Content="[ quit ]" Click="OnQuit" />
         </StackPanel>
     </Grid>

@@ -12,10 +12,11 @@ public sealed class TrayIcon : IDisposable
 {
     private readonly NotifyIcon _icon;
 
-    public TrayIcon(Action lockAction, Action exitAction, Action openConfig)
+    public TrayIcon(Action lockAction, Action exitAction, Action openConfig, Action setPassphrase)
     {
         var menu = new ContextMenuStrip();
         menu.Items.Add("Lock now", null, (_, _) => lockAction());
+        menu.Items.Add("Set passphrase...", null, (_, _) => setPassphrase());
         menu.Items.Add("Open config folder", null, (_, _) => openConfig());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => exitAction());

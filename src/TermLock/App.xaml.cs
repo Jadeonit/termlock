@@ -57,6 +57,31 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        _config = AppConfig.Load();
+
+        // Change the passphrase without starting the tray app. If TermLock is
+        // already running, the tray menu is the right place: it updates the
+        // in-memory config too.
+        if (args.Contains("--setup"))
+        {
+            using var probe = new Mutex(true, @"Local\TermLock.SingleInstance", out var createdNew);
+            if (!createdNew)
+            {
+                System.Windows.MessageBox.Show(
+                    "TermLock is already running.\n\nUse the tray icon: right-click -> Set passphrase...",
+                    "TermLock",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                Shutdown();
+                return;
+            }
+
+            ShowSetup();
+            probe.ReleaseMutex();
+            Shutdown();
+            return;
+        }
+
         // --- one TermLock per user session --------------------------------------
         _mutex = new Mutex(true, @"Local\TermLock.SingleInstance", out var isNew);
         if (!isNew)
@@ -65,7 +90,6 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        _config = AppConfig.Load();
         Log.Write($"start v0.1 user={Environment.UserName}");
 
         // The lock window is created once and reused. It stays hidden until the
@@ -76,7 +100,8 @@ public partial class App : System.Windows.Application
         _tray = new TrayIcon(
             lockAction: () => _lockWindow.ShowLock(),
             exitAction: Shutdown,
-            openConfig: () => Process.Start("explorer.exe", AppPaths.Root));
+            openConfig: () => Process.Start("explorer.exe", AppPaths.Root),
+            setPassphrase: ShowSetup);
 
         // Global hotkey: Ctrl+Alt+Shift+L
         _hotkeys = new HotkeyHost();
@@ -134,6 +159,16 @@ public partial class App : System.Windows.Application
         }
 
         _tray.ShowBalloon("TermLock", "Running. Ctrl+Alt+Shift+L locks the screen.");
+    }
+
+    private void ShowSetup()
+    {
+        var setup = new SetupWindow(_config);
+        if (setup.ShowDialog() == true)
+        {
+            _config.Save();
+            Log.Write("passphrase saved");
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
