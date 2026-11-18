@@ -97,6 +97,50 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // Dev/CI: render the curtain and exit. This path runs before the
+        // single-instance mutex, the tray icon and the hotkey, so screenshot
+        // runs never block a live TermLock and never leave ghost tray icons.
+        if (args.Contains("--shot"))
+        {
+            var window = new MainWindow(_config);
+
+            try
+            {
+                window.ShowLock();
+            }
+            catch (Exception ex)
+            {
+                Log.Write("show lock failed: " + ex);
+            }
+
+            var path = Path.Combine(AppPaths.Root, "shot.png");
+            var shotTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(900)
+            };
+
+            shotTimer.Tick += (_, _) =>
+            {
+                shotTimer.Stop();
+                try
+                {
+                    window.RenderToFile(path);
+                    Log.Write("shot written: " + path);
+                }
+                catch (Exception ex)
+                {
+                    Log.Write("shot failed: " + ex);
+                }
+                finally
+                {
+                    Shutdown();
+                }
+            };
+
+            shotTimer.Start();
+            return;
+        }
+
         // Change the passphrase without starting the tray app. If TermLock is
         // already running, the tray menu is the right place: it updates the
         // in-memory config too.
@@ -163,7 +207,7 @@ public partial class App : System.Windows.Application
             Log.Write("passphrase created");
         }
 
-        if (args.Contains("--lock") || args.Contains("--shot"))
+        if (args.Contains("--lock"))
         {
             try
             {
@@ -173,35 +217,6 @@ public partial class App : System.Windows.Application
             {
                 Log.Write("show lock failed: " + ex);
             }
-        }
-
-        if (args.Contains("--shot"))
-        {
-            var path = Path.Combine(AppPaths.Root, "shot.png");
-            var shotTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(900)
-            };
-
-            shotTimer.Tick += (_, _) =>
-            {
-                shotTimer.Stop();
-                try
-                {
-                    _lockWindow.RenderToFile(path);
-                    Log.Write("shot written: " + path);
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("shot failed: " + ex);
-                }
-                finally
-                {
-                    Shutdown();
-                }
-            };
-
-            shotTimer.Start();
         }
 
         _tray.ShowBalloon("TermLock", "Running. Ctrl+Alt+Shift+L locks the screen.");
