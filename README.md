@@ -23,8 +23,9 @@ laptop, useless against someone who knows what they are doing. See
 - fullscreen, borderless, topmost terminal curtain across the whole virtual desktop
 - global hotkey `Ctrl+Alt+Shift+L`
 - passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
+- profile name + device type (`<name> PC` or `<name> Laptop`) shown on the curtain
 - attempt counter with a cooldown
-- tray icon: lock / set passphrase / open config folder / exit
+- tray icon: lock / set profile / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
 - single instance, append-only log
 - animated digit rain (glyph atlas + `WriteableBitmap`, 30 FPS)
@@ -66,20 +67,28 @@ dotnet run --project src/TermLock
 dotnet run --project src/TermLock -- --lock
 ```
 
-On the first run TermLock asks for a passphrase. It is stored as a PBKDF2 hash in
+On the first run TermLock asks for a display name, a device type (PC or Laptop)
+and a passphrase. The passphrase is stored as a PBKDF2 hash in
 `%APPDATA%\TermLock\config.json` — never in plaintext.
 
-## Set or change the passphrase
+## Set or change the profile
 
 **First run.** Launch `TermLock.exe` from Explorer or a normal PowerShell window.
-A black `TERMLOCK // PASSPHRASE` window appears in the center of the screen:
+A black `TERMLOCK // PROFILE` window appears in the center of the screen:
 
-1. Type a passphrase of 8 or more characters.
-2. Press `Tab` (or `Enter`) to move to the second field.
-3. Type the same passphrase again.
-4. Press `Enter` (or click `[ create ]`).
+1. Type the name shown on the curtain (for example `Jadeonit`).
+2. Choose `[ PC ]` or `[ Laptop ]`.
+3. Type a passphrase of 8 or more characters.
+4. Press `Tab` (or `Enter`) to move to the second field.
+5. Type the same passphrase again.
+6. Press `Enter` (or click `[ save ]`).
 
-**Later.** Right-click the tray icon → `Set passphrase...`, or run:
+The curtain renders `<name> PC` or `<name> Laptop` in the header and the `host`
+line.
+
+![Profile dialog](docs/screenshot-setup.png)
+
+**Later.** Right-click the tray icon → `Set profile...`, or run:
 
 ```powershell
 TermLock.exe --setup
@@ -87,6 +96,7 @@ TermLock.exe --setup
 
 `--setup` always opens the dialog, even when a passphrase already exists. Use it
 when TermLock is not running; the tray menu applies changes immediately.
+Leave both passphrase fields empty to change only the name and device type.
 
 If you forget the passphrase, delete `%APPDATA%\TermLock\config.json` and run
 `--setup` again. This is intentional: a curtain must never lock *you* out.
@@ -112,7 +122,7 @@ dotnet publish src/TermLock/TermLock.csproj -c Release -r win-x64 --self-contain
 TermLock.exe --install     # add to HKCU Run
 TermLock.exe --uninstall   # remove from HKCU Run
 TermLock.exe --disable     # exit immediately (emergency switch)
-TermLock.exe --setup       # set or change the passphrase
+TermLock.exe --setup       # set or change the profile
 ```
 
 Run `--install` from the **published** exe. If you install from `dotnet run`, the

@@ -150,7 +150,7 @@ public partial class MainWindow : Window
     {
         var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
         MetaText.Text =
-            $"v0.1  ·  {_config.DisplayName}  ·  " +
+            $"v0.1  ·  {_config.DisplayNameWithDevice}  ·  " +
             $"up {uptime.Days}d {uptime.Hours:00}h {uptime.Minutes:00}m  ·  " +
             $"{DateTime.Now:HH:mm:ss}";
     }
@@ -164,7 +164,7 @@ public partial class MainWindow : Window
 
         StatsText.Text = $"""
 SYSTEM
-  host       {_config.DisplayName}
+  host       {_config.DisplayNameWithDevice}
   os         {RuntimeInformation.OSDescription}
   uptime     {uptime.Days}d {uptime.Hours:00}h {uptime.Minutes:00}m
   cpu        [ -- ]  day 6

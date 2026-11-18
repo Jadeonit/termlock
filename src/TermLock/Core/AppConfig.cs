@@ -13,6 +13,31 @@ public sealed class AppConfig
     /// <summary>Shown in the terminal header. Not the Windows hostname.</summary>
     public string DisplayName { get; set; } = "Jadeonit-laptop";
 
+    /// <summary>Name typed during setup; the curtain renders "{UserName} PC" or "{UserName} Laptop".</summary>
+    public string UserName { get; set; } = "Jadeonit";
+
+    /// <summary>"PC" or "Laptop".</summary>
+    public string DeviceType { get; set; } = "PC";
+
+    /// <summary>Convenience for the UI: "Jadeonit PC" or "Jadeonit Laptop".</summary>
+    [JsonIgnore]
+    public string DisplayNameWithDevice
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(UserName))
+            {
+                return DisplayName;
+            }
+
+            var device = string.Equals(DeviceType, "Laptop", StringComparison.OrdinalIgnoreCase)
+                ? "Laptop"
+                : "PC";
+
+            return $"{UserName} {device}";
+        }
+    }
+
     public string PassphraseHash { get; set; } = "";
     public string PassphraseSalt { get; set; } = "";
     public int PassphraseIterations { get; set; } = 600_000;

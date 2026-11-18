@@ -16,7 +16,7 @@ public sealed class TrayIcon : IDisposable
     {
         var menu = new ContextMenuStrip();
         menu.Items.Add("Lock now", null, (_, _) => lockAction());
-        menu.Items.Add("Set passphrase...", null, (_, _) => setPassphrase());
+        menu.Items.Add("Set profile...", null, (_, _) => setPassphrase());
         menu.Items.Add("Open config folder", null, (_, _) => openConfig());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => exitAction());

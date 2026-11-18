@@ -217,6 +217,10 @@ dotnet build TermLock.sln -c Release
 # запустить и сразу показать ширму
 dotnet run --project src/TermLock -- --lock
 
+# снять окно ширмы или профиля в PNG (dev)
+TermLock.exe --shot
+TermLock.exe --setup-shot
+
 # посмотреть лог
 Get-Content "$env:APPDATA\TermLock\logs\termlock.log" -Tail 20
 ```

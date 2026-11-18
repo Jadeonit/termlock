@@ -6,8 +6,8 @@ using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 namespace TermLock.UI;
 
 /// <summary>
-/// First-run dialog. Day 1 only asks for the passphrase; the full wizard
-/// (recovery code, USB key, ntfy topic) arrives on Day 7.
+/// Profile dialog: display name, device type and passphrase. The same window
+/// is used on first run, from the tray and from `--setup`.
 /// </summary>
 public partial class SetupWindow : Window
 {
@@ -17,7 +17,25 @@ public partial class SetupWindow : Window
     {
         InitializeComponent();
         _config = config;
-        Loaded += (_, _) => Pass1.Focus();
+
+        UserNameInput.Text = string.IsNullOrWhiteSpace(config.UserName)
+            ? "Jadeonit"
+            : config.UserName;
+
+        if (string.Equals(config.DeviceType, "Laptop", StringComparison.OrdinalIgnoreCase))
+        {
+            LaptopRadio.IsChecked = true;
+        }
+        else
+        {
+            PcRadio.IsChecked = true;
+        }
+
+        Loaded += (_, _) =>
+        {
+            UserNameInput.Focus();
+            UserNameInput.SelectAll();
+        };
     }
 
     private void OnDrag(object sender, MouseButtonEventArgs e)
@@ -25,6 +43,15 @@ public partial class SetupWindow : Window
         if (e.LeftButton == MouseButtonState.Pressed)
         {
             DragMove();
+        }
+    }
+
+    private void OnUserNameKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            Pass1.Focus();
+            e.Handled = true;
         }
     }
 
@@ -53,8 +80,25 @@ public partial class SetupWindow : Window
 
     private void TryCreate()
     {
+        var user = UserNameInput.Text.Trim();
+        if (user.Length == 0)
+        {
+            ErrorText.Text = "username is required";
+            UserNameInput.Focus();
+            return;
+        }
+
+        var device = LaptopRadio.IsChecked == true ? "Laptop" : "PC";
         var first = Pass1.Password;
         var second = Pass2.Password;
+
+        // Name-only change: leave both passphrase fields empty.
+        if (first.Length == 0 && second.Length == 0 && _config.HasPassphrase)
+        {
+            SaveProfile(user, device);
+            DialogResult = true;
+            return;
+        }
 
         if (first.Length < 8)
         {
@@ -75,7 +119,15 @@ public partial class SetupWindow : Window
         _config.PassphraseSalt = salt;
         _config.PassphraseIterations = iterations;
 
+        SaveProfile(user, device);
         DialogResult = true;
+    }
+
+    private void SaveProfile(string user, string device)
+    {
+        _config.UserName = user;
+        _config.DeviceType = device;
+        _config.DisplayName = $"{user} {device}";
     }
 
     private void OnQuit(object sender, RoutedEventArgs e)

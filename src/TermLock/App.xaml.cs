@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using TermLock.Core;
 using TermLock.Platform;
@@ -59,6 +61,42 @@ public partial class App : System.Windows.Application
 
         _config = AppConfig.Load();
 
+        // Dev/CI: render the profile dialog to a PNG without showing it on the
+        // interactive desktop. Used for README screenshots.
+        if (args.Contains("--setup-shot"))
+        {
+            var setup = new SetupWindow(_config);
+            setup.Show();
+
+            var path = Path.Combine(AppPaths.Root, "setup-shot.png");
+            var shotTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(700)
+            };
+
+            shotTimer.Tick += (_, _) =>
+            {
+                shotTimer.Stop();
+                try
+                {
+                    RenderWindowToFile(setup, path);
+                    Log.Write("setup shot written: " + path);
+                }
+                catch (Exception ex)
+                {
+                    Log.Write("setup shot failed: " + ex);
+                }
+                finally
+                {
+                    setup.Close();
+                    Shutdown();
+                }
+            };
+
+            shotTimer.Start();
+            return;
+        }
+
         // Change the passphrase without starting the tray app. If TermLock is
         // already running, the tray menu is the right place: it updates the
         // in-memory config too.
@@ -68,7 +106,7 @@ public partial class App : System.Windows.Application
             if (!createdNew)
             {
                 System.Windows.MessageBox.Show(
-                    "TermLock is already running.\n\nUse the tray icon: right-click -> Set passphrase...",
+                    "TermLock is already running.\n\nUse the tray icon: right-click -> Set profile...",
                     "TermLock",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -177,6 +215,23 @@ public partial class App : System.Windows.Application
             _config.Save();
             Log.Write("passphrase saved");
         }
+    }
+
+    private static void RenderWindowToFile(Window window, string path)
+    {
+        window.UpdateLayout();
+
+        var width = (int)Math.Max(1, window.ActualWidth);
+        var height = (int)Math.Max(1, window.ActualHeight);
+
+        var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+        bitmap.Render(window);
+
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+        using var stream = File.Create(path);
+        encoder.Save(stream);
     }
 
     protected override void OnExit(ExitEventArgs e)
