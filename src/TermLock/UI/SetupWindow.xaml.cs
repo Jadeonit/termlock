@@ -6,8 +6,9 @@ using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 namespace TermLock.UI;
 
 /// <summary>
-/// Profile dialog: display name, device type and passphrase. The same window
-/// is used on first run, from the tray and from `--setup`.
+/// Profile dialog: display name, device and passphrase. The Windows label is
+/// detected automatically. The same window is used on first run, from the tray
+/// and from `--setup`.
 /// </summary>
 public partial class SetupWindow : Window
 {
@@ -22,13 +23,9 @@ public partial class SetupWindow : Window
             ? "Jadeonit"
             : config.UserName;
 
-        WindowsRadio.Content = SystemInfo.WindowsLabel();
+        OsLabel.Text = $"system       {SystemInfo.WindowsLabel()}";
 
-        if (config.DeviceType.StartsWith("Windows", StringComparison.OrdinalIgnoreCase))
-        {
-            WindowsRadio.IsChecked = true;
-        }
-        else if (string.Equals(config.DeviceType, "Laptop", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(config.DeviceType, "Laptop", StringComparison.OrdinalIgnoreCase))
         {
             LaptopRadio.IsChecked = true;
         }
@@ -94,9 +91,7 @@ public partial class SetupWindow : Window
             return;
         }
 
-        var device = WindowsRadio.IsChecked == true
-            ? SystemInfo.WindowsLabel()
-            : LaptopRadio.IsChecked == true ? "Laptop" : "PC";
+        var device = LaptopRadio.IsChecked == true ? "Laptop" : "PC";
 
         var first = Pass1.Password;
         var second = Pass2.Password;
@@ -136,7 +131,7 @@ public partial class SetupWindow : Window
     {
         _config.UserName = user;
         _config.DeviceType = device;
-        _config.DisplayName = $"{user} @ {device}";
+        _config.DisplayName = $"{user} @ {device} @ {SystemInfo.WindowsLabel()}";
     }
 
     private void OnQuit(object sender, RoutedEventArgs e)

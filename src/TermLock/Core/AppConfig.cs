@@ -13,15 +13,15 @@ public sealed class AppConfig
     /// <summary>Shown in the terminal header. Not the Windows hostname.</summary>
     public string DisplayName { get; set; } = "Jadeonit-laptop";
 
-    /// <summary>Name typed during setup; the curtain renders "{UserName} @ {DeviceType}".</summary>
+    /// <summary>Name typed during setup; the curtain renders "{UserName} @ {DeviceType} @ {WindowsLabel}".</summary>
     public string UserName { get; set; } = "Jadeonit";
 
-    /// <summary>"PC", "Laptop", or a detected Windows label like "Windows 10 22H2".</summary>
+    /// <summary>"PC" or "Laptop".</summary>
     public string DeviceType { get; set; } = "PC";
 
-    /// <summary>Convenience for the UI: "Jadeonit @ PC" or "Jadeonit @ Windows 10 22H2".</summary>
+    /// <summary>Convenience for the UI: "Jadeonit @ Laptop @ Windows 10 Pro 22H2".</summary>
     [JsonIgnore]
-    public string DisplayNameWithDevice
+    public string DisplayNameFull
     {
         get
         {
@@ -30,8 +30,11 @@ public sealed class AppConfig
                 return DisplayName;
             }
 
-            var device = string.IsNullOrWhiteSpace(DeviceType) ? "PC" : DeviceType;
-            return $"{UserName} @ {device}";
+            var device = string.Equals(DeviceType, "Laptop", StringComparison.OrdinalIgnoreCase)
+                ? "Laptop"
+                : "PC";
+
+            return $"{UserName} @ {device} @ {SystemInfo.WindowsLabel()}";
         }
     }
 

@@ -264,21 +264,23 @@ Get-Content "$env:APPDATA\TermLock\logs\termlock.log" -Tail 20
 `SetupWindow` собирает:
 
 - `UserName` — имя на ширме;
-- `DeviceType` — `PC`, `Laptop` или версия системы;
-- `DisplayName` — готовая строка вида `Jadeonit @ Windows 10 22H2`.
+- `DeviceType` — `PC` или `Laptop`;
+- `DisplayName` — готовая строка для конфига, например
+  `Jadeonit @ Laptop @ Windows 10 Pro 22H2`.
 
 `SystemInfo.WindowsLabel()` читает
 `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion`:
 
-- `ProductName` — убираем редакцию (`Pro`, `Home`, `Enterprise`, ...);
+- `ProductName` — полное имя с редакцией (`Windows 10 Pro`, `Windows 11 Home`);
 - `CurrentBuildNumber` ≥ 22000 — значит, это Windows 11, даже если
   `ProductName` всё ещё пишет `Windows 10`;
-- `DisplayVersion` — `22H2`, `23H2`, `24H2`.
+- `DisplayVersion` — `22H2`, `23H2`, `24H2`;
+- результат кэшируется в `Lazy<string>`: версия ОС не меняется на ходу.
 
-`AppConfig.DisplayNameWithDevice` склеивает `"{UserName} @ {DeviceType}"`.
-Поэтому в шапке и в строке `user` появляется `Jadeonit @ Windows 10 22H2`.
-Если в настройке выбрать `PC` или `Laptop`, будет `Jadeonit @ PC` или
-`Jadeonit @ Laptop`.
+`AppConfig.DisplayNameFull` склеивает
+`"{UserName} @ {DeviceType} @ {SystemInfo.WindowsLabel()}"`.
+Поэтому в шапке и в строке `user` появляется
+`Jadeonit @ Laptop @ Windows 10 Pro 22H2`.
 
 ## 12. Раскладка, Caps и кириллица
 

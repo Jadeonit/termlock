@@ -3,12 +3,18 @@ using Microsoft.Win32;
 namespace TermLock.Core;
 
 /// <summary>
-/// Friendly Windows version label, e.g. "Windows 10 22H2" or "Windows 11 24H2".
-/// Read from HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion — no WMI, no network.
+/// Friendly Windows version label, e.g. "Windows 10 Pro 22H2" or
+/// "Windows 11 Pro 24H2". Read from
+/// HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion — no WMI, no network.
+/// The label is cached: the OS version does not change while the app runs.
 /// </summary>
 public static class SystemInfo
 {
-    public static string WindowsLabel()
+    private static readonly Lazy<string> CachedLabel = new(DetectWindowsLabel);
+
+    public static string WindowsLabel() => CachedLabel.Value;
+
+    private static string DetectWindowsLabel()
     {
         try
         {
@@ -24,14 +30,6 @@ public static class SystemInfo
             if (int.TryParse(buildText, out var build) && build >= 22000)
             {
                 product = product.Replace("Windows 10", "Windows 11");
-            }
-
-            foreach (var edition in new[]
-                     {
-                         " Pro", " Home", " Enterprise", " Education", " IoT", " N"
-                     })
-            {
-                product = product.Replace(edition, "");
             }
 
             product = product.Trim();

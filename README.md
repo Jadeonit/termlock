@@ -23,7 +23,7 @@ laptop, useless against someone who knows what they are doing. See
 - fullscreen, borderless, topmost terminal curtain across the whole virtual desktop
 - global hotkey `Ctrl+Alt+Shift+L`
 - passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
-- profile name + label (`<name> @ PC`, `<name> @ Laptop`, or `<name> @ Windows 10 22H2`) shown on the curtain
+- profile prompt (`<name> @ <device> @ <Windows version>`, e.g. `Jadeonit @ Laptop @ Windows 10 Pro 22H2`) shown on the curtain
 - keyboard layout badge `[EN]` / `[RU]` with `CAPS` and `CYR` warnings
 - attempt counter with a cooldown
 - tray icon: lock / set profile / open config folder / exit
@@ -68,9 +68,9 @@ dotnet run --project src/TermLock
 dotnet run --project src/TermLock -- --lock
 ```
 
-On the first run TermLock asks for a display name, a device/system label and a
-passphrase. The passphrase is stored as a PBKDF2 hash in
-`%APPDATA%\TermLock\config.json` — never in plaintext.
+On the first run TermLock asks for a display name, a device (PC or Laptop) and a
+passphrase. The Windows label is detected automatically. The passphrase is stored
+as a PBKDF2 hash in `%APPDATA%\TermLock\config.json` — never in plaintext.
 
 ## Set or change the profile
 
@@ -78,15 +78,15 @@ passphrase. The passphrase is stored as a PBKDF2 hash in
 A black `TERMLOCK // PROFILE` window appears in the center of the screen:
 
 1. Type the name shown on the curtain (for example `Jadeonit`).
-2. Choose `[ ] PC`, `[ ] Laptop`, or `[ ] Windows 10 22H2`.
-   The Windows label is detected from the registry.
+2. Choose `[ ] PC` or `[ ] Laptop`.
+   The system line below shows the detected Windows version.
 3. Type a passphrase of 8 or more characters.
 4. Press `Tab` (or `Enter`) to move to the second field.
 5. Type the same passphrase again.
 6. Press `Enter` (or click `[ save ]`).
 
-The curtain renders `<name> @ PC`, `<name> @ Laptop`, or
-`<name> @ Windows 10 22H2` in the header and the `user` line.
+The curtain renders `<name> @ <device> @ <Windows version>`, for example
+`Jadeonit @ Laptop @ Windows 10 Pro 22H2`, in the header and the `user` line.
 
 ![Profile dialog](docs/screenshot-setup.png)
 

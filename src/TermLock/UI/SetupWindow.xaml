@@ -109,6 +109,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -120,13 +121,13 @@
 
         <TextBlock Grid.Row="1"
                    Margin="0,8,0,18"
-                   Text="Set the name, the label after @, and the passphrase. Tab moves, Enter saves."
+                   Text="Set the name, device and passphrase. The system label is detected automatically. Tab moves, Enter saves."
                    Foreground="#0A8F3C"
                    TextWrapping="Wrap" />
 
         <TextBlock Grid.Row="2"
                    Margin="0,0,0,6"
-                   Text="username  (shown as &lt;name&gt; @ ...)"
+                   Text="username  (shown as &lt;name&gt; @ &lt;device&gt; @ &lt;system&gt;)"
                    Foreground="#0A8F3C" />
         <TextBox x:Name="UserNameInput"
                  Grid.Row="3"
@@ -135,7 +136,7 @@
 
         <TextBlock Grid.Row="4"
                    Margin="0,14,0,6"
-                   Text="device / system  (shown as &lt;name&gt; @ &lt;device&gt;)"
+                   Text="device"
                    Foreground="#0A8F3C" />
         <StackPanel Grid.Row="5"
                     Orientation="Horizontal">
@@ -148,29 +149,30 @@
                          Content="Laptop"
                          GroupName="Device"
                          Style="{StaticResource DeviceChoice}" />
-            <RadioButton x:Name="WindowsRadio"
-                         Content="Windows"
-                         GroupName="Device"
-                         Style="{StaticResource DeviceChoice}" />
         </StackPanel>
 
-        <TextBlock Grid.Row="6"
+        <TextBlock x:Name="OsLabel"
+                   Grid.Row="6"
+                   Margin="0,10,0,0"
+                   Foreground="#0A5C28" />
+
+        <TextBlock Grid.Row="7"
                    Margin="0,14,0,6"
                    Text="passphrase  (8+ characters, words are easier to remember)"
                    Foreground="#0A8F3C" />
         <PasswordBox x:Name="Pass1"
-                     Grid.Row="7"
+                     Grid.Row="8"
                      KeyDown="OnPass1KeyDown" />
 
-        <TextBlock Grid.Row="8"
+        <TextBlock Grid.Row="9"
                    Margin="0,14,0,6"
                    Text="repeat passphrase  (leave both empty to change only the name)"
                    Foreground="#0A8F3C" />
         <PasswordBox x:Name="Pass2"
-                     Grid.Row="9"
+                     Grid.Row="10"
                      KeyDown="OnPass2KeyDown" />
 
-        <StackPanel Grid.Row="10">
+        <StackPanel Grid.Row="11">
             <TextBlock x:Name="ErrorText"
                        Margin="0,14,0,0"
                        Foreground="#FF5555"
@@ -181,7 +183,7 @@
                        Text="Stored as a PBKDF2-SHA256 hash in %APPDATA%\TermLock\config.json. No recovery code yet (Day 7). If you forget it, delete config.json and set a new one." />
         </StackPanel>
 
-        <StackPanel Grid.Row="12"
+        <StackPanel Grid.Row="13"
                     Margin="0,18,0,0"
                     Orientation="Horizontal">
             <Button Content="[ save ]" Click="OnCreate" />
