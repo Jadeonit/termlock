@@ -29,3 +29,4 @@ slice that builds, runs, and can be tested on the real machine.
 ## Done
 
 - [x] Day 1 — scaffold, curtain window, hotkey, passphrase, tray, autostart
+- [x] Day 2 — animated digit rain (glyph atlas + `WriteableBitmap`, 30 FPS)

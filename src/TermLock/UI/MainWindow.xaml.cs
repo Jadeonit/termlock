@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -59,7 +58,6 @@ public partial class MainWindow : Window
         PreviewKeyDown += OnPreviewKeyDown;
 
         BuildBanner();
-        BuildMatrix();
         UpdateHeader();
         UpdatePrompt();
         UpdateStatus("awaiting passphrase");
@@ -146,27 +144,6 @@ public partial class MainWindow : Window
     ██║   ███████╗██║  ██║██║ ╚═╝ ██║███████╗╚██████╔╝╚██████╗██║  ██╗
     ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
 """;
-    }
-
-    private void BuildMatrix()
-    {
-        // Day 1 placeholder: a frozen field of digits. Day 2 replaces this with
-        // a real animated renderer (glyph atlas + WriteableBitmap).
-        var random = Random.Shared;
-        var builder = new StringBuilder();
-
-        for (var row = 0; row < 32; row++)
-        {
-            for (var column = 0; column < 26; column++)
-            {
-                builder.Append(random.Next(0, 10));
-                builder.Append(' ');
-            }
-
-            builder.AppendLine();
-        }
-
-        MatrixText.Text = builder.ToString();
     }
 
     private void UpdateHeader()

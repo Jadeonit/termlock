@@ -140,8 +140,14 @@ public partial class App : System.Windows.Application
         if (args.Contains("--shot"))
         {
             var path = Path.Combine(AppPaths.Root, "shot.png");
-            Dispatcher.BeginInvoke(() =>
+            var shotTimer = new DispatcherTimer
             {
+                Interval = TimeSpan.FromMilliseconds(900)
+            };
+
+            shotTimer.Tick += (_, _) =>
+            {
+                shotTimer.Stop();
                 try
                 {
                     _lockWindow.RenderToFile(path);
@@ -155,7 +161,9 @@ public partial class App : System.Windows.Application
                 {
                     Shutdown();
                 }
-            }, DispatcherPriority.ApplicationIdle);
+            };
+
+            shotTimer.Start();
         }
 
         _tray.ShowBalloon("TermLock", "Running. Ctrl+Alt+Shift+L locks the screen.");

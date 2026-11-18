@@ -107,21 +107,26 @@ paste, and keyboard layouts without reimplementing a text editor.
 
 `Esc` and `Ctrl+U` clear the line. `Enter` verifies. `Esc` never unlocks.
 
-## Day 2: matrix renderer
+## Matrix renderer
 
-Planned design:
+`UI/MatrixRain.cs` is a small terminal-style renderer:
 
-1. Pre-render a glyph atlas (digits + a few symbols) into a `RenderTargetBitmap`
-   at, for example, 10×18 px per cell.
-2. Keep a `byte[] brightness` array with one entry per terminal cell.
-3. Every frame:
-   - decay all cells: `brightness[i] = brightness[i] * 0.94`;
-   - spawn new drops at random columns with a bright head;
-   - blit glyphs from the atlas into a `WriteableBitmap` buffer.
-4. `CompositionTarget.Rendering` drives the frame loop; the renderer is capped at
-   60 FPS.
+1. **Glyph atlas** — digits `0-9` are pre-rendered once into a single
+   `RenderTargetBitmap`; every character occupies one fixed cell.
+2. **Cell grid** — `float[] _brightness` and `byte[] _glyph` hold one entry per
+   terminal cell.
+3. **Drops** — one drop per column (`DropsPerColumn = 1`), each with its own speed,
+   tail length and vertical position.
+4. **Frame** (30 FPS, driven by a `DispatcherTimer`):
+   - decay every cell by `Decay`;
+   - move each drop, stamp a near-white head and a green fading tail;
+   - draw only active cells into a persistent BGRA frame buffer;
+   - `WriteableBitmap.WritePixels` once, then invalidate the visual.
+5. **Lifecycle** — the timer starts and stops with `IsVisible`, so a hidden
+   curtain costs nothing.
 
-This avoids thousands of `TextBlock` objects, GC pressure, and layout passes.
+No `TextBlock` per character, no layout pass per frame, no GC churn. See
+[docs/MATRIX.md](MATRIX.md) for the walkthrough.
 
 ## Future
 

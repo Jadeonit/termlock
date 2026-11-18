@@ -12,12 +12,11 @@ laptop, useless against someone who knows what they are doing. See
 
 ## Status
 
-**v0.1 — Day 1 of 10.** Small daily commits, one feature at a time.
+**v0.1 — Day 2 of 10.** Small daily commits, one feature at a time.
 
-![TermLock Day 1](docs/screenshot-day1.png)
+![TermLock Day 2](docs/screenshot-day2.png)
 
-*Day 1 render: real layout, frozen digit field. Day 2 replaces the field with
-animated matrix rain.*
+*Day 2 render: animated digit rain, 30 FPS, glyph atlas + `WriteableBitmap`.*
 
 ### Works today
 
@@ -28,11 +27,10 @@ animated matrix rain.*
 - tray icon: lock / set passphrase / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
 - single instance, append-only log
-- frozen digit field (Day 2 turns it into real matrix rain)
+- animated digit rain (glyph atlas + `WriteableBitmap`, 30 FPS)
 
 ### Planned
 
-- animated matrix rain renderer (glyph atlas + `WriteableBitmap`)
 - real system probes: CPU, RAM, disk, Defender, firewall, Secure Boot
 - keyboard hook: block `Win`, `Alt+Tab`, `Alt+F4` while locked
 - double-tap Caps Lock trigger
@@ -154,6 +152,7 @@ able to lock *you* out of your own machine.
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — why an overlay, how the pieces fit
 - [docs/CODE.md](docs/CODE.md) — walkthrough of the code (in Russian, for learning)
+- [docs/MATRIX.md](docs/MATRIX.md) — how the matrix rain renderer works
 - [docs/NTFY.md](docs/NTFY.md) — phone/watch notifications with ntfy (in Russian)
 - [docs/SECURITY.md](docs/SECURITY.md) — threat model and honest limitations
 
