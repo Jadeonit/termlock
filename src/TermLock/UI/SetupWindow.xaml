@@ -120,13 +120,13 @@
 
         <TextBlock Grid.Row="1"
                    Margin="0,8,0,18"
-                   Text="Set the name shown on the curtain, the device type, and the passphrase. Tab moves, Enter saves."
+                   Text="Set the name, the label after @, and the passphrase. Tab moves, Enter saves."
                    Foreground="#0A8F3C"
                    TextWrapping="Wrap" />
 
         <TextBlock Grid.Row="2"
                    Margin="0,0,0,6"
-                   Text="username  (shown as &lt;name&gt; PC / Laptop)"
+                   Text="username  (shown as &lt;name&gt; @ ...)"
                    Foreground="#0A8F3C" />
         <TextBox x:Name="UserNameInput"
                  Grid.Row="3"
@@ -135,7 +135,7 @@
 
         <TextBlock Grid.Row="4"
                    Margin="0,14,0,6"
-                   Text="device"
+                   Text="device / system  (shown as &lt;name&gt; @ &lt;device&gt;)"
                    Foreground="#0A8F3C" />
         <StackPanel Grid.Row="5"
                     Orientation="Horizontal">
@@ -146,6 +146,10 @@
                          Style="{StaticResource DeviceChoice}" />
             <RadioButton x:Name="LaptopRadio"
                          Content="Laptop"
+                         GroupName="Device"
+                         Style="{StaticResource DeviceChoice}" />
+            <RadioButton x:Name="WindowsRadio"
+                         Content="Windows"
                          GroupName="Device"
                          Style="{StaticResource DeviceChoice}" />
         </StackPanel>

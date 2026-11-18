@@ -258,3 +258,24 @@ Get-Content "$env:APPDATA\TermLock\logs\termlock.log" -Tail 20
 Раскладка: мультимонитор, DPI, аккуратные отступы, курсор и строка статуса.
 Рендерер уже есть; теперь надо сделать так, чтобы он хорошо смотрелся на любом
 экране.
+
+## 11. Профиль и версия Windows
+
+`SetupWindow` собирает:
+
+- `UserName` — имя на ширме;
+- `DeviceType` — `PC`, `Laptop` или версия системы;
+- `DisplayName` — готовая строка вида `Jadeonit @ Windows 10 22H2`.
+
+`SystemInfo.WindowsLabel()` читает
+`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion`:
+
+- `ProductName` — убираем редакцию (`Pro`, `Home`, `Enterprise`, ...);
+- `CurrentBuildNumber` ≥ 22000 — значит, это Windows 11, даже если
+  `ProductName` всё ещё пишет `Windows 10`;
+- `DisplayVersion` — `22H2`, `23H2`, `24H2`.
+
+`AppConfig.DisplayNameWithDevice` склеивает `"{UserName} @ {DeviceType}"`.
+Поэтому в шапке и в строке `user` появляется `Jadeonit @ Windows 10 22H2`.
+Если в настройке выбрать `PC` или `Laptop`, будет `Jadeonit @ PC` или
+`Jadeonit @ Laptop`.

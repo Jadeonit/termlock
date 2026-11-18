@@ -23,7 +23,7 @@ laptop, useless against someone who knows what they are doing. See
 - fullscreen, borderless, topmost terminal curtain across the whole virtual desktop
 - global hotkey `Ctrl+Alt+Shift+L`
 - passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
-- profile name + device type (`<name> PC` or `<name> Laptop`) shown on the curtain
+- profile name + label (`<name> @ PC`, `<name> @ Laptop`, or `<name> @ Windows 10 22H2`) shown on the curtain
 - attempt counter with a cooldown
 - tray icon: lock / set profile / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
@@ -67,8 +67,8 @@ dotnet run --project src/TermLock
 dotnet run --project src/TermLock -- --lock
 ```
 
-On the first run TermLock asks for a display name, a device type (PC or Laptop)
-and a passphrase. The passphrase is stored as a PBKDF2 hash in
+On the first run TermLock asks for a display name, a device/system label and a
+passphrase. The passphrase is stored as a PBKDF2 hash in
 `%APPDATA%\TermLock\config.json` — never in plaintext.
 
 ## Set or change the profile
@@ -77,14 +77,15 @@ and a passphrase. The passphrase is stored as a PBKDF2 hash in
 A black `TERMLOCK // PROFILE` window appears in the center of the screen:
 
 1. Type the name shown on the curtain (for example `Jadeonit`).
-2. Choose `[ PC ]` or `[ Laptop ]`.
+2. Choose `[ ] PC`, `[ ] Laptop`, or `[ ] Windows 10 22H2`.
+   The Windows label is detected from the registry.
 3. Type a passphrase of 8 or more characters.
 4. Press `Tab` (or `Enter`) to move to the second field.
 5. Type the same passphrase again.
 6. Press `Enter` (or click `[ save ]`).
 
-The curtain renders `<name> PC` or `<name> Laptop` in the header and the `host`
-line.
+The curtain renders `<name> @ PC`, `<name> @ Laptop`, or
+`<name> @ Windows 10 22H2` in the header and the `user` line.
 
 ![Profile dialog](docs/screenshot-setup.png)
 
@@ -96,7 +97,7 @@ TermLock.exe --setup
 
 `--setup` always opens the dialog, even when a passphrase already exists. Use it
 when TermLock is not running; the tray menu applies changes immediately.
-Leave both passphrase fields empty to change only the name and device type.
+Leave both passphrase fields empty to change only the name and label.
 
 If you forget the passphrase, delete `%APPDATA%\TermLock\config.json` and run
 `--setup` again. This is intentional: a curtain must never lock *you* out.

@@ -22,7 +22,13 @@ public partial class SetupWindow : Window
             ? "Jadeonit"
             : config.UserName;
 
-        if (string.Equals(config.DeviceType, "Laptop", StringComparison.OrdinalIgnoreCase))
+        WindowsRadio.Content = SystemInfo.WindowsLabel();
+
+        if (config.DeviceType.StartsWith("Windows", StringComparison.OrdinalIgnoreCase))
+        {
+            WindowsRadio.IsChecked = true;
+        }
+        else if (string.Equals(config.DeviceType, "Laptop", StringComparison.OrdinalIgnoreCase))
         {
             LaptopRadio.IsChecked = true;
         }
@@ -88,7 +94,10 @@ public partial class SetupWindow : Window
             return;
         }
 
-        var device = LaptopRadio.IsChecked == true ? "Laptop" : "PC";
+        var device = WindowsRadio.IsChecked == true
+            ? SystemInfo.WindowsLabel()
+            : LaptopRadio.IsChecked == true ? "Laptop" : "PC";
+
         var first = Pass1.Password;
         var second = Pass2.Password;
 
@@ -127,7 +136,7 @@ public partial class SetupWindow : Window
     {
         _config.UserName = user;
         _config.DeviceType = device;
-        _config.DisplayName = $"{user} {device}";
+        _config.DisplayName = $"{user} @ {device}";
     }
 
     private void OnQuit(object sender, RoutedEventArgs e)

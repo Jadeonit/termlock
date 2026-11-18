@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -164,8 +163,8 @@ public partial class MainWindow : Window
 
         StatsText.Text = $"""
 SYSTEM
-  host       {_config.DisplayNameWithDevice}
-  os         {RuntimeInformation.OSDescription}
+  user       {_config.DisplayNameWithDevice}
+  os         {SystemInfo.WindowsLabel()}
   uptime     {uptime.Days}d {uptime.Hours:00}h {uptime.Minutes:00}m
   cpu        [ -- ]  day 6
   ram        [ -- ]  day 6
