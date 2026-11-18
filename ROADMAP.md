@@ -9,7 +9,7 @@ slice that builds, runs, and can be tested on the real machine.
 | 2 | Animated matrix rain (glyph atlas + `WriteableBitmap`) | `feat(render): matrix rain` |
 | 3 | Terminal layout polish, multi-monitor, DPI, cursor/status line | `feat(ui): lock screen layout` |
 | 4 | Auth hardening: attempt policy, cooldown timer, config migration | `feat(auth): passphrase policy` |
-| 5 | Keyboard hook: block `Win`/`Alt+Tab`/`Alt+F4`, double Caps, watchdog | `feat(guard): keyboard hook + watchdog` |
+| 5 | Keyboard guard: block `Win`/`Alt+Tab`/`Alt+F4`/`Ctrl+Esc`/`PrintScreen`, double Caps | `feat(guard): keyboard hook + double Caps` |
 | 6 | Real stats: CPU, RAM, disk, Defender, firewall, Secure Boot | `feat(stats): system probes` |
 | 7 | USB key unlock, recovery code, first-run wizard | `feat(auth): usb key + recovery` |
 | 8 | ntfy alerts, configurable fail action (Shutdown by default) | `feat(notify): alerts + fail action` |
@@ -19,6 +19,7 @@ slice that builds, runs, and can be tested on the real machine.
 ## Backlog
 
 - [ ] guest passphrase → harmless "Study Mode" decoy screen
+- [ ] watchdog process (relaunch the curtain if the UI process dies)
 - [ ] optional intruder log (webcam photo, local only)
 - [ ] themes: terminal / BIOS / Windows Update
 - [ ] mechanical keyboard sounds (opt-in)
@@ -30,3 +31,4 @@ slice that builds, runs, and can be tested on the real machine.
 
 - [x] Day 1 — scaffold, curtain window, hotkey, passphrase, tray, autostart
 - [x] Day 2 — animated digit rain (glyph atlas + `WriteableBitmap`, 30 FPS)
+- [x] Day 5 — keyboard guard + double Caps

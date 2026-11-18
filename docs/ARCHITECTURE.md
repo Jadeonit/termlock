@@ -107,6 +107,22 @@ paste, and keyboard layouts without reimplementing a text editor.
 
 `Esc` and `Ctrl+U` clear the line. `Enter` verifies. `Esc` never unlocks.
 
+## Keyboard guard
+
+`Platform/KeyboardHook.cs` installs a low-level `WH_KEYBOARD_LL` hook on the UI
+thread. While the curtain is visible it swallows:
+
+- `Win` (both keys) — which also kills `Win+D`, `Win+Tab`, `Win+Shift+S`;
+- `Alt+Tab`;
+- `Alt+F4`;
+- `Ctrl+Esc` (Start menu);
+- `PrintScreen`.
+
+It never blocks `Ctrl+Alt+Del` — that is the secure attention sequence and
+user-mode cannot intercept it. While unlocked, the hook only watches for a
+double-tap of Caps Lock; both presses pass through, so the Caps state ends where
+it started. The hook inspects virtual-key codes only; it never stores text.
+
 ## Matrix renderer
 
 `UI/MatrixRain.cs` is a small terminal-style renderer:

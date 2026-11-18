@@ -25,6 +25,8 @@ laptop, useless against someone who knows what they are doing. See
 - passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
 - header prompt (`<name> @ <device> @ <Windows version>`, e.g. `Jadeonit @ Laptop @ Windows 10 Pro 22H2`); the SYSTEM block shows the account name and `Windows 10 Pro`
 - keyboard layout badge `[EN]` / `[RU]` with `CAPS` and `CYR` warnings
+- keyboard guard while locked: `Win`, `Alt+Tab`, `Alt+F4`, `Ctrl+Esc`, `PrintScreen`
+- double-tap `Caps Lock` to summon the curtain
 - attempt counter with a cooldown
 - tray icon: lock / set profile / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
@@ -34,8 +36,6 @@ laptop, useless against someone who knows what they are doing. See
 ### Planned
 
 - real system probes: CPU, RAM, disk, Defender, firewall, Secure Boot
-- keyboard hook: block `Win`, `Alt+Tab`, `Alt+F4` while locked
-- double-tap Caps Lock trigger
 - watchdog process
 - USB key unlock
 - recovery code
@@ -136,6 +136,7 @@ registry will point at the SDK host instead of TermLock.
 | Keys | Action |
 |---|---|
 | `Ctrl+Alt+Shift+L` | show the curtain |
+| `Caps Lock` ×2 | show the curtain (when unlocked) |
 | `Esc` | clear the input line (never unlocks) |
 | `Ctrl+U` | clear the input line |
 | `Enter` | check the passphrase |
@@ -144,8 +145,9 @@ registry will point at the SDK host instead of TermLock.
 The prompt also shows `CAPS` when Caps Lock is on and `CYR` when the typed
 passphrase contains Cyrillic characters. Both are warnings, not blocks.
 
-While the curtain is visible it is topmost, covers every monitor, and refuses
-`Alt+F4`. It does not block `Ctrl+Alt+Del` — nothing user-mode can.
+While the curtain is visible it is topmost, covers every monitor, and swallows
+`Win`, `Alt+Tab`, `Alt+F4`, `Ctrl+Esc` and `PrintScreen`. It does not block
+`Ctrl+Alt+Del` — nothing user-mode can.
 
 ## Where things live
 

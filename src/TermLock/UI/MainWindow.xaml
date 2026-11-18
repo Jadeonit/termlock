@@ -104,6 +104,6 @@
                    Margin="0,6,0,0"
                    FontSize="12"
                    Foreground="#0A5C28"
-                   Text="Enter = unlock   ·   Esc = clear line   ·   Alt+Shift = layout   ·   Ctrl+Alt+Shift+L = lock" />
+                   Text="Enter = unlock   ·   Esc = clear line   ·   Alt+Shift = layout   ·   Caps x2 / Ctrl+Alt+Shift+L = lock" />
     </Grid>
 </Window>

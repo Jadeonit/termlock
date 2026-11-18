@@ -301,3 +301,31 @@ Get-Content "$env:APPDATA\TermLock\logs\termlock.log" -Tail 20
 
 `CAPS` и `CYR` подсвечиваются жёлтым, но ничего не блокируют: это подсказка,
 а не запрет. Проверка фразы всё равно идёт по хэшу.
+
+## 13. Клавиатурный щит
+
+`Platform/KeyboardHook.cs` ставит низкоуровневый хук `WH_KEYBOARD_LL`:
+
+```csharp
+SetWindowsHookEx(WH_KEYBOARD_LL, _proc, GetModuleHandle(null), 0);
+```
+
+Пока ширма видна, колбэк возвращает `1` для:
+
+- `VK_LWIN` / `VK_RWIN` — заодно отваливаются `Win+D`, `Win+Tab`, `Win+Shift+S`;
+- `VK_TAB` при зажатом Alt — `Alt+Tab`;
+- `VK_F4` при зажатом Alt — `Alt+F4`;
+- `VK_ESCAPE` при зажатом Ctrl — `Ctrl+Esc`;
+- `VK_SNAPSHOT` — PrintScreen.
+
+`Ctrl+Alt+Del` не блокируется: это secure attention sequence, user-mode до неё
+не достаёт.
+
+Двойной Caps:
+
+- хук запоминает время первого `VK_CAPITAL`;
+- второй в течение 400 мс вызывает `ShowLock()`;
+- `_capsHeld` не даёт автоповтору зажатой клавиши сработать как двойной тап;
+- оба нажатия проходят дальше, поэтому состояние Caps Lock в итоге не меняется.
+
+Хук смотрит только коды клавиш. Текст пароля он не читает и никуда не пишет.

@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.Windows.Threading;
 using TermLock.Core;
+using TermLock.Platform;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace TermLock.UI;
@@ -21,6 +22,7 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _clock;
     private readonly DispatcherTimer _cursorBlink;
     private readonly DispatcherTimer _keepOnTop;
+    private readonly KeyboardHook _keyboard;
 
     private int _attempts;
     private DateTime _cooldownUntil = DateTime.MinValue;
@@ -41,6 +43,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _config = config;
+
+        _keyboard = new KeyboardHook(() => IsVisible, ShowLock);
 
         _clock = new DispatcherTimer(
             TimeSpan.FromSeconds(1),
@@ -239,6 +243,7 @@ AUTH
 
     protected override void OnClosed(EventArgs e)
     {
+        _keyboard.Dispose();
         InputLanguageManager.Current.InputLanguageChanged -= OnInputLanguageChanged;
         base.OnClosed(e);
     }
