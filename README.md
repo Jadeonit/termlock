@@ -24,6 +24,7 @@ laptop, useless against someone who knows what they are doing. See
 - global hotkey `Ctrl+Alt+Shift+L`
 - passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
 - profile name + label (`<name> @ PC`, `<name> @ Laptop`, or `<name> @ Windows 10 22H2`) shown on the curtain
+- keyboard layout badge `[EN]` / `[RU]` with `CAPS` and `CYR` warnings
 - attempt counter with a cooldown
 - tray icon: lock / set profile / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
@@ -137,6 +138,10 @@ registry will point at the SDK host instead of TermLock.
 | `Esc` | clear the input line (never unlocks) |
 | `Ctrl+U` | clear the input line |
 | `Enter` | check the passphrase |
+| `Alt+Shift` | switch the Windows input language; the prompt shows `[EN]` / `[RU]` |
+
+The prompt also shows `CAPS` when Caps Lock is on and `CYR` when the typed
+passphrase contains Cyrillic characters. Both are warnings, not blocks.
 
 While the curtain is visible it is topmost, covers every monitor, and refuses
 `Alt+F4`. It does not block `Ctrl+Alt+Del` — nothing user-mode can.

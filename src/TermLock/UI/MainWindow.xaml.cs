@@ -26,6 +26,13 @@ public partial class MainWindow : Window
     private DateTime _cooldownUntil = DateTime.MinValue;
     private bool _cursorVisible = true;
     private bool _allowClose;
+    private string _layoutCode = "EN";
+
+    private static readonly System.Windows.Media.Brush DimLayoutBrush =
+        new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x0A, 0x8F, 0x3C));
+
+    private static readonly System.Windows.Media.Brush WarnLayoutBrush =
+        new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xB0, 0x00));
 
     /// <summary>Raised after a correct passphrase, on the UI thread.</summary>
     public event EventHandler? Unlocked;
@@ -55,9 +62,13 @@ public partial class MainWindow : Window
 
         HiddenInput.PasswordChanged += (_, _) => UpdatePrompt();
         PreviewKeyDown += OnPreviewKeyDown;
+        PreviewKeyUp += OnPreviewKeyUp;
+        InputLanguageManager.Current.InputLanguageChanged += OnInputLanguageChanged;
+        Activated += (_, _) => UpdateLayoutIndicator();
 
         BuildBanner();
         UpdateHeader();
+        UpdateLayoutIndicator();
         UpdatePrompt();
         UpdateStatus("awaiting passphrase");
     }
@@ -76,6 +87,7 @@ public partial class MainWindow : Window
 
         Topmost = true;
         UpdateStatus("awaiting passphrase");
+        UpdateLayoutIndicator();
 
         _clock.Start();
         _cursorBlink.Start();
@@ -178,6 +190,7 @@ SECURITY
 
 AUTH
   method     passphrase / PBKDF2-SHA256
+  layout     {_layoutCode}
   attempts   {_attempts} / {_config.MaxAttempts}
   cooldown   {cooldown}
 """;
@@ -186,7 +199,50 @@ AUTH
     private void UpdatePrompt()
     {
         InputText.Text = new string('●', HiddenInput.Password.Length);
+        UpdateLayoutIndicator();
         UpdateStats();
+    }
+
+    private void UpdateLayoutIndicator()
+    {
+        var culture = InputLanguageManager.Current.CurrentInputLanguage;
+        _layoutCode = culture?.TwoLetterISOLanguageName?.ToUpperInvariant() ?? "??";
+
+        var caps = Keyboard.IsKeyToggled(Key.CapsLock);
+        var hasCyrillic = HiddenInput.Password.Any(c => c >= '\u0400' && c <= '\u04FF');
+
+        var text = $"[{_layoutCode}]";
+        if (caps)
+        {
+            text += " CAPS";
+        }
+
+        if (hasCyrillic)
+        {
+            text += " CYR";
+        }
+
+        LayoutText.Text = text;
+        LayoutText.Foreground = caps || hasCyrillic ? WarnLayoutBrush : DimLayoutBrush;
+    }
+
+    private void OnInputLanguageChanged(object? sender, InputLanguageEventArgs e)
+    {
+        UpdateLayoutIndicator();
+    }
+
+    private void OnPreviewKeyUp(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.CapsLock)
+        {
+            UpdateLayoutIndicator();
+        }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        InputLanguageManager.Current.InputLanguageChanged -= OnInputLanguageChanged;
+        base.OnClosed(e);
     }
 
     private void UpdateStatus(string message)

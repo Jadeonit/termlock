@@ -279,3 +279,17 @@ Get-Content "$env:APPDATA\TermLock\logs\termlock.log" -Tail 20
 Поэтому в шапке и в строке `user` появляется `Jadeonit @ Windows 10 22H2`.
 Если в настройке выбрать `PC` или `Laptop`, будет `Jadeonit @ PC` или
 `Jadeonit @ Laptop`.
+
+## 12. Раскладка, Caps и кириллица
+
+Рядом с промптом висит бейдж `[EN]` / `[RU]`:
+
+- `InputLanguageManager.Current.CurrentInputLanguage` даёт текущий язык ввода;
+- `CultureInfo.TwoLetterISOLanguageName` превращается в `EN` / `RU`;
+- событие `InputLanguageChanged` обновляет бейдж при `Alt+Shift`;
+- `Keyboard.IsKeyToggled(Key.CapsLock)` добавляет `CAPS`;
+- если в `PasswordBox.Password` есть символы `\u0400..\u04FF`, добавляется
+  `CYR` — значит, фраза набрана кириллицей.
+
+`CAPS` и `CYR` подсвечиваются жёлтым, но ничего не блокируют: это подсказка,
+а не запрет. Проверка фразы всё равно идёт по хэшу.

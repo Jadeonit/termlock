@@ -77,6 +77,10 @@
             <TextBlock x:Name="CursorText"
                        Text="_"
                        Foreground="{StaticResource TermGreen}" />
+            <TextBlock x:Name="LayoutText"
+                       Margin="24,0,0,0"
+                       Text="[--]"
+                       Foreground="{StaticResource TermDim}" />
 
             <!-- Invisible focus sink: it owns real keyboard input, while the
                  visible line above only renders bullets. -->
@@ -100,6 +104,6 @@
                    Margin="0,6,0,0"
                    FontSize="12"
                    Foreground="#0A5C28"
-                   Text="Enter = unlock   ·   Esc = clear line   ·   Ctrl+Alt+Shift+L = lock" />
+                   Text="Enter = unlock   ·   Esc = clear line   ·   Alt+Shift = layout   ·   Ctrl+Alt+Shift+L = lock" />
     </Grid>
 </Window>
