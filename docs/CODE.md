@@ -275,12 +275,18 @@ Get-Content "$env:APPDATA\TermLock\logs\termlock.log" -Tail 20
 - `CurrentBuildNumber` ≥ 22000 — значит, это Windows 11, даже если
   `ProductName` всё ещё пишет `Windows 10`;
 - `DisplayVersion` — `22H2`, `23H2`, `24H2`;
-- результат кэшируется в `Lazy<string>`: версия ОС не меняется на ходу.
+- пара `(product, version)` кэшируется в `Lazy<...>`: версия ОС не меняется
+  на ходу.
 
 `AppConfig.DisplayNameFull` склеивает
-`"{UserName} @ {DeviceType} @ {SystemInfo.WindowsLabel()}"`.
-Поэтому в шапке и в строке `user` появляется
-`Jadeonit @ Laptop @ Windows 10 Pro 22H2`.
+`"{UserName} @ {DeviceType} @ {SystemInfo.WindowsLabel()}"` и используется
+только в шапке, например `Jadeonit @ Laptop @ Windows 10 Pro 22H2`.
+
+В блоке `SYSTEM` дублирования нет:
+
+- `user` — просто имя учётной записи (`UserName`);
+- `os` — только продукт, `SystemInfo.WindowsProduct()` → `Windows 10 Pro`;
+- `uptime` — только здесь, в шапке его больше нет.
 
 ## 12. Раскладка, Caps и кириллица
 

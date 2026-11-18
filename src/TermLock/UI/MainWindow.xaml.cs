@@ -161,9 +161,7 @@ public partial class MainWindow : Window
     {
         var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
         MetaText.Text =
-            $"v0.1  ·  {_config.DisplayNameFull}  ·  " +
-            $"up {uptime.Days}d {uptime.Hours:00}h {uptime.Minutes:00}m  ·  " +
-            $"{DateTime.Now:HH:mm:ss}";
+            $"v0.1  ·  {_config.DisplayNameFull}  ·  {DateTime.Now:HH:mm:ss}";
     }
 
     private void UpdateStats()
@@ -175,8 +173,8 @@ public partial class MainWindow : Window
 
         StatsText.Text = $"""
 SYSTEM
-  user       {_config.DisplayNameFull}
-  os         {SystemInfo.WindowsLabel()}
+  user       {_config.UserName}
+  os         {SystemInfo.WindowsProduct()}
   uptime     {uptime.Days}d {uptime.Hours:00}h {uptime.Minutes:00}m
   cpu        [ -- ]  day 6
   ram        [ -- ]  day 6

@@ -23,7 +23,7 @@ laptop, useless against someone who knows what they are doing. See
 - fullscreen, borderless, topmost terminal curtain across the whole virtual desktop
 - global hotkey `Ctrl+Alt+Shift+L`
 - passphrase unlock (`PBKDF2-HMAC-SHA256`, 600 000 iterations, random salt)
-- profile prompt (`<name> @ <device> @ <Windows version>`, e.g. `Jadeonit @ Laptop @ Windows 10 Pro 22H2`) shown on the curtain
+- header prompt (`<name> @ <device> @ <Windows version>`, e.g. `Jadeonit @ Laptop @ Windows 10 Pro 22H2`); the SYSTEM block shows the account name and `Windows 10 Pro`
 - keyboard layout badge `[EN]` / `[RU]` with `CAPS` and `CYR` warnings
 - attempt counter with a cooldown
 - tray icon: lock / set profile / open config folder / exit
@@ -85,8 +85,9 @@ A black `TERMLOCK // PROFILE` window appears in the center of the screen:
 5. Type the same passphrase again.
 6. Press `Enter` (or click `[ save ]`).
 
-The curtain renders `<name> @ <device> @ <Windows version>`, for example
-`Jadeonit @ Laptop @ Windows 10 Pro 22H2`, in the header and the `user` line.
+The header renders `<name> @ <device> @ <Windows version>`, for example
+`Jadeonit @ Laptop @ Windows 10 Pro 22H2`. The SYSTEM block below shows the
+account name in `user` and the product name (`Windows 10 Pro`) in `os`.
 
 ![Profile dialog](docs/screenshot-setup.png)
 
