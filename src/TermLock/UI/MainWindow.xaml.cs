@@ -71,6 +71,7 @@ public partial class MainWindow : Window
         Activated += (_, _) => UpdateLayoutIndicator();
 
         BuildBanner();
+        BuildArt();
         UpdateHeader();
         UpdateLayoutIndicator();
         UpdatePrompt();
@@ -158,6 +159,24 @@ public partial class MainWindow : Window
     ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║     ██║   ██║██║     ██╔═██╗
     ██║   ███████╗██║  ██║██║ ╚═╝ ██║███████╗╚██████╔╝╚██████╗██║  ██╗
     ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
+""";
+    }
+
+    private void BuildArt()
+    {
+        ArtText.Text = """
+   .---------------------------.
+   |  >_ termlock --status     |
+   |                           |
+   |    .-----------------.    |
+   |    |  #############  |    |
+   |    |  #############  |    |
+   |    |  #############  |    |
+   |    '-----------------'    |
+   |         \_______/         |
+   |                           |
+   |  curtain ......... ARMED  |
+   '---------------------------'
 """;
     }
 
