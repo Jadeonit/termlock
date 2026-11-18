@@ -12,11 +12,11 @@ laptop, useless against someone who knows what they are doing. See
 
 ## Status
 
-**v0.1 — Day 2 of 10.** Small daily commits, one feature at a time.
+**v0.2 in progress — daily commits.**
 
-![TermLock Day 2](docs/screenshot-day2.png)
+![TermLock lock screen](docs/screenshot-lock.png)
 
-*Day 2 render: animated digit rain, 30 FPS, glyph atlas + `WriteableBitmap`.*
+*Current lock screen: full-body digit rain, stats panel and terminal art.*
 
 ### Works today
 
@@ -89,7 +89,7 @@ The header renders `<name> @ <device> @ <Windows version>`, for example
 `Jadeonit @ Laptop @ Windows 10 Pro 22H2`. The SYSTEM block below shows the
 account name in `user` and the product name (`Windows 10 Pro`) in `os`.
 
-![Profile dialog](docs/screenshot-setup.png)
+![Profile dialog](docs/screenshot-profile.png)
 
 **Later.** Right-click the tray icon → `Set profile...`, or run:
 
