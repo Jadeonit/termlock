@@ -161,6 +161,24 @@ The security rows are heuristics, not a full security audit: a third-party
 antivirus can make Defender look off, and the registry values are only as
 trustworthy as the machine. Nothing is sent over the network.
 
+## Recovery and USB
+
+Two independent fallbacks:
+
+- **Recovery code** — 160 random bits encoded as Crockford base32 in eight
+  groups (`XXXX-XXXX-...`). Only its SHA-256 is stored. On the lock screen,
+  `:recovery CODE` verifies it; dashes, spaces and lowercase are normalized.
+  The code is displayed once by `RecoveryWindow` and must be saved by the user.
+- **USB key** — `UsbKey.Create` writes a random 32-byte token to
+  `termlock.key` on a removable drive and stores the token hash plus the
+  drive's volume serial. While locked, `MainWindow` polls removable drives
+  every 1.5 s. It only unlocks on an absent → present transition; a key that is
+  already inserted when the curtain appears must be removed and reinserted.
+
+Neither path is a substitute for BitLocker: someone with the drive or the
+recovery code can still unlock. They exist so the owner cannot be locked out by
+a forgotten passphrase.
+
 ## Future
 
 - USB key: file token + volume serial, hashed in config.

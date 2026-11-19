@@ -23,12 +23,14 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _clock;
     private readonly DispatcherTimer _cursorBlink;
     private readonly DispatcherTimer _keepOnTop;
+    private readonly DispatcherTimer _usbPoll;
     private readonly KeyboardHook _keyboard;
 
     private int _attempts;
     private DateTime _cooldownUntil = DateTime.MinValue;
     private bool _cursorVisible = true;
     private bool _allowClose;
+    private bool _usbPresent;
     private string _layoutCode = "EN";
 
     private static readonly System.Windows.Media.Brush DimLayoutBrush =
@@ -71,6 +73,12 @@ public partial class MainWindow : Window
             (_, _) => KeepOnTop(),
             Dispatcher);
 
+        _usbPoll = new DispatcherTimer(
+            TimeSpan.FromMilliseconds(1500),
+            DispatcherPriority.Background,
+            (_, _) => PollUsb(),
+            Dispatcher);
+
         HiddenInput.PasswordChanged += (_, _) => UpdatePrompt();
         PreviewKeyDown += OnPreviewKeyDown;
         PreviewKeyUp += OnPreviewKeyUp;
@@ -102,6 +110,9 @@ public partial class MainWindow : Window
         UpdateLayoutIndicator();
         _stats.ResetCpuBaseline();
         UpdateStats();
+
+        _usbPresent = UsbKey.IsPresent(_config);
+        _usbPoll.Start();
 
         _clock.Start();
         _cursorBlink.Start();
@@ -230,6 +241,8 @@ SECURITY
 AUTH
   method     passphrase / PBKDF2-SHA256
   layout     {_layoutCode}
+  recovery   {(_config.HasRecovery ? "enrolled" : "off")}
+  usb        {(!_config.HasUsbKey ? "off" : (_usbPresent ? "inserted" : "enrolled"))}
   attempts   {_attempts} / {_config.MaxAttempts}
   cooldown   {cooldown}
 """;
@@ -280,6 +293,7 @@ AUTH
 
     protected override void OnClosed(EventArgs e)
     {
+        _usbPoll.Stop();
         _keyboard.Dispose();
         InputLanguageManager.Current.InputLanguageChanged -= OnInputLanguageChanged;
         base.OnClosed(e);
@@ -358,28 +372,69 @@ AUTH
             return;
         }
 
+        if (phrase.StartsWith(":recovery", StringComparison.OrdinalIgnoreCase))
+        {
+            var code = phrase.Length > ":recovery".Length
+                ? phrase[":recovery".Length..].Trim()
+                : "";
+
+            if (!_config.HasRecovery)
+            {
+                UpdateStatus("no recovery code enrolled");
+                return;
+            }
+
+            if (code.Length == 0)
+            {
+                UpdateStatus("usage: :recovery CODE");
+                return;
+            }
+
+            if (RecoveryCode.Verify(code, _config.RecoveryHash))
+            {
+                Unlock("recovery");
+            }
+            else
+            {
+                Fail("recovery code rejected");
+            }
+
+            return;
+        }
+
         if (Passphrase.Verify(
                 phrase,
                 _config.PassphraseHash,
                 _config.PassphraseSalt,
                 _config.PassphraseIterations))
         {
-            _attempts = 0;
-            HiddenInput.Clear();
-            Log.Write("unlock ok");
-            UpdateStatus("access granted");
-
-            _clock.Stop();
-            _cursorBlink.Stop();
-            _keepOnTop.Stop();
-            Hide();
-
-            Unlocked?.Invoke(this, EventArgs.Empty);
+            Unlock("passphrase");
             return;
         }
 
+        Fail("passphrase rejected");
+    }
+
+    private void Unlock(string method)
+    {
+        _attempts = 0;
+        HiddenInput.Clear();
+        Log.Write($"unlock ok ({method})");
+        UpdateStatus("access granted");
+
+        _clock.Stop();
+        _cursorBlink.Stop();
+        _keepOnTop.Stop();
+        _usbPoll.Stop();
+        Hide();
+
+        Unlocked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Fail(string reason)
+    {
         _attempts++;
-        Log.Write($"unlock failed ({_attempts}/{_config.MaxAttempts})");
+        Log.Write($"unlock failed ({reason}) ({_attempts}/{_config.MaxAttempts})");
         HiddenInput.Clear();
 
         if (_attempts >= _config.MaxAttempts)
@@ -395,5 +450,28 @@ AUTH
         }
 
         UpdateStats();
+    }
+
+    private void PollUsb()
+    {
+        if (!IsVisible || !_config.HasUsbKey)
+        {
+            return;
+        }
+
+        var present = UsbKey.IsPresent(_config);
+
+        if (present && !_usbPresent)
+        {
+            _usbPresent = true;
+            Unlock("usb");
+            return;
+        }
+
+        if (present != _usbPresent)
+        {
+            _usbPresent = present;
+            UpdateStats();
+        }
     }
 }

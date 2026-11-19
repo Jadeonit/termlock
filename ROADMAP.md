@@ -33,3 +33,4 @@ slice that builds, runs, and can be tested on the real machine.
 - [x] Day 2 — animated digit rain (glyph atlas + `WriteableBitmap`, 30 FPS)
 - [x] Day 5 — keyboard guard + double Caps
 - [x] Day 6 — live CPU/RAM/disk/Defender/firewall/Secure Boot
+- [x] Day 7 — USB key + recovery code

@@ -183,7 +183,8 @@ public partial class App : System.Windows.Application
             lockAction: () => _lockWindow.ShowLock(),
             exitAction: Shutdown,
             openConfig: () => Process.Start("explorer.exe", AppPaths.Root),
-            setPassphrase: ShowSetup);
+            setPassphrase: () => ShowSetup(),
+            createUsbKey: ShowUsbKey);
 
         // Global hotkey: Ctrl+Alt+Shift+L
         _hotkeys = new HotkeyHost();
@@ -193,18 +194,14 @@ public partial class App : System.Windows.Application
             Log.Write("hotkey registration failed (already in use?)");
         }
 
-        // First run: ask for a passphrase before anything else.
+        // First run: ask for a profile and passphrase before anything else.
         if (!_config.HasPassphrase)
         {
-            var setup = new SetupWindow(_config);
-            if (setup.ShowDialog() != true)
+            if (!ShowSetup())
             {
                 Shutdown();
                 return;
             }
-
-            _config.Save();
-            Log.Write("passphrase created");
         }
 
         if (args.Contains("--lock"))
@@ -222,14 +219,41 @@ public partial class App : System.Windows.Application
         _tray.ShowBalloon("TermLock", "Running. Ctrl+Alt+Shift+L locks the screen.");
     }
 
-    private void ShowSetup()
+    private bool ShowSetup()
     {
         var setup = new SetupWindow(_config);
-        if (setup.ShowDialog() == true)
+        if (setup.ShowDialog() != true)
         {
-            _config.Save();
-            Log.Write("passphrase saved");
+            return false;
         }
+
+        _config.Save();
+        Log.Write("passphrase saved");
+
+        if (!_config.HasRecovery)
+        {
+            var code = RecoveryCode.Generate();
+            var recovery = new RecoveryWindow(code);
+
+            if (recovery.ShowDialog() == true)
+            {
+                _config.RecoveryHash = RecoveryCode.Hash(code);
+                _config.Save();
+                Log.Write("recovery code created");
+            }
+            else
+            {
+                Log.Write("recovery code skipped");
+            }
+        }
+
+        return true;
+    }
+
+    private void ShowUsbKey()
+    {
+        var window = new UsbKeyWindow(_config);
+        window.ShowDialog();
     }
 
     private static void RenderWindowToFile(Window window, string path)

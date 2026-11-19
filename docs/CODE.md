@@ -353,3 +353,28 @@ SetWindowsHookEx(WH_KEYBOARD_LL, _proc, GetModuleHandle(null), 0);
 
 Проверки безопасности — эвристики: сторонний антивирус может выключить Defender,
 и тогда строка покажет `OFF`. Это не аудит, а быстрый индикатор.
+
+## 15. Recovery-код и USB-ключ
+
+Recovery-код (`Core/RecoveryCode.cs`):
+
+- 20 случайных байт = 160 бит;
+- Crockford base32 → 32 символа, группами по 4: `XXXX-XXXX-...`;
+- `Normalize` убирает дефисы/пробелы, приводит к верхнему регистру и
+  исправляет `I/L → 1`, `O → 0`;
+- в конфиге лежит только `SHA256(normalized)`;
+- `MainWindow.TryUnlock` ловит префикс `:recovery`, проверяет код через
+  `CryptographicOperations.FixedTimeEquals` и вызывает `Unlock("recovery")`.
+
+USB-ключ (`Core/UsbKey.cs`):
+
+- `Create(root)` пишет `termlock.key` с 32-байтным токеном;
+- в конфиг попадают `SHA256(token)` и серийный номер тома
+  (`GetVolumeInformation`);
+- `IsPresent` перебирает съёмные диски, проверяет заголовок, хэш и серийник;
+- `MainWindow._usbPoll` раз в 1.5 с смотрит наличие ключа;
+- срабатывает только переход «нет → есть». Если флешка уже вставлена в момент
+  блокировки, её нужно вынуть и вставить заново.
+
+Проверка алгоритма recovery-кода отдельным консольным тестом: генерация,
+lowercase, вариант без дефисов — `True`; случайный код — `False`.

@@ -22,6 +22,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- ASCII banner -->
@@ -120,5 +121,11 @@
                    FontSize="12"
                    Foreground="#0A5C28"
                    Text="Enter = unlock   ·   Esc = clear line   ·   Alt+Shift = layout   ·   Caps x2 / Ctrl+Alt+Shift+L = lock" />
+
+        <TextBlock Grid.Row="6"
+                   Margin="0,3,0,0"
+                   FontSize="11"
+                   Foreground="#0A5C28"
+                   Text=":recovery CODE = backup unlock" />
     </Grid>
 </Window>

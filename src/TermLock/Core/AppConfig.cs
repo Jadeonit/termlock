@@ -42,6 +42,10 @@ public sealed class AppConfig
     public string PassphraseSalt { get; set; } = "";
     public int PassphraseIterations { get; set; } = 600_000;
 
+    public string RecoveryHash { get; set; } = "";
+    public string UsbTokenHash { get; set; } = "";
+    public uint UsbVolumeSerial { get; set; }
+
     /// <summary>Human-readable form; the parser lives in HotkeyHost (Day 5).</summary>
     public string Hotkey { get; set; } = "Ctrl+Alt+Shift+L";
 
@@ -63,6 +67,12 @@ public sealed class AppConfig
     [JsonIgnore]
     public bool HasPassphrase =>
         !string.IsNullOrWhiteSpace(PassphraseHash) && !string.IsNullOrWhiteSpace(PassphraseSalt);
+
+    [JsonIgnore]
+    public bool HasRecovery => !string.IsNullOrWhiteSpace(RecoveryHash);
+
+    [JsonIgnore]
+    public bool HasUsbKey => !string.IsNullOrWhiteSpace(UsbTokenHash);
 
     public static AppConfig Load()
     {

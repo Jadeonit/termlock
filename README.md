@@ -14,7 +14,7 @@ laptop, useless against someone who knows what they are doing. See
 
 **v0.2 in progress — daily commits.**
 
-![TermLock lock screen](docs/screenshot-lock.png?v=3)
+![TermLock lock screen](docs/screenshot-lock.png?v=4)
 
 *Current lock screen: full-body digit rain, live system stats and terminal art.*
 
@@ -28,8 +28,10 @@ laptop, useless against someone who knows what they are doing. See
 - keyboard guard while locked: `Win`, `Alt+Tab`, `Alt+F4`, `Ctrl+Esc`, `PrintScreen`
 - double-tap `Caps Lock` to summon the curtain
 - live CPU / RAM / disk bars, Defender, firewall and Secure Boot checks
+- recovery code (`:recovery CODE`), shown once and stored as SHA-256
+- USB key unlock (`termlock.key` on a removable drive, bound to its volume serial)
 - attempt counter with a cooldown
-- tray icon: lock / set profile / open config folder / exit
+- tray icon: lock / set profile / create USB key / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
 - single instance, append-only log
 - animated digit rain (glyph atlas + `WriteableBitmap`, 30 FPS)
@@ -37,8 +39,6 @@ laptop, useless against someone who knows what they are doing. See
 ### Planned
 
 - watchdog process
-- USB key unlock
-- recovery code
 - ntfy alerts on failed attempts (phone + watch)
 - configurable action after 3 failed attempts (Shutdown by default)
 - guest mode — postponed for now
@@ -84,12 +84,27 @@ A black `TERMLOCK // PROFILE` window appears in the center of the screen:
 4. Press `Tab` (or `Enter`) to move to the second field.
 5. Type the same passphrase again.
 6. Press `Enter` (or click `[ save ]`).
+7. The recovery-code window appears. Copy the code or write it down, then click
+   `[ i saved it ]`.
 
 The header renders `<name> @ <device> @ <Windows version>`, for example
 `Jadeonit @ Laptop @ Windows 10 Pro 22H2`. The SYSTEM block below shows the
 account name in `user` and the product name (`Windows 10 Pro`) in `os`.
 
 ![Profile dialog](docs/screenshot-profile.png)
+
+## Unlock methods
+
+| Method | How |
+|---|---|
+| Passphrase | type it at the prompt |
+| Recovery code | type `:recovery CODE` (dashes and lowercase are fine) |
+| USB key | tray → `Create USB key...`, then plug the drive in while locked |
+
+The recovery code is shown **once** and stored as SHA-256. The USB key is a
+random token in `termlock.key`, bound to the drive's volume serial. Remove the
+drive before locking and plug it back in to unlock; if it is already inserted
+when you lock, remove and reinsert it — TermLock only unlocks on insertion.
 
 **Later.** Right-click the tray icon → `Set profile...`, or run:
 
@@ -101,8 +116,9 @@ TermLock.exe --setup
 when TermLock is not running; the tray menu applies changes immediately.
 Leave both passphrase fields empty to change only the name and label.
 
-If you forget the passphrase, delete `%APPDATA%\TermLock\config.json` and run
-`--setup` again. This is intentional: a curtain must never lock *you* out.
+If you forget the passphrase, use the recovery code. If that is lost too, delete
+`%APPDATA%\TermLock\config.json` and run `--setup` again. This is intentional: a
+curtain must never lock *you* out.
 
 > If you launch TermLock from an IDE or agent terminal that lives on another
 > virtual desktop, the window may open there and you will not see it. Launch it
