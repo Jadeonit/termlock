@@ -144,6 +144,23 @@ it started. The hook inspects virtual-key codes only; it never stores text.
 No `TextBlock` per character, no layout pass per frame, no GC churn. See
 [docs/MATRIX.md](MATRIX.md) for the walkthrough.
 
+## System probes
+
+`Core/SystemStats.cs` supplies the live dashboard without WMI or admin rights:
+
+| Value | Source |
+|---|---|
+| CPU | `GetSystemTimes` deltas, sampled once per second |
+| RAM | `GlobalMemoryStatusEx` |
+| Disk | `DriveInfo` for the system drive |
+| Defender | `MsMpEng` process plus registry real-time flags |
+| Firewall | `EnableFirewall` in the domain/standard/public profiles |
+| Secure Boot | `UEFISecureBootEnabled` under `HKLM\...\SecureBoot\State` |
+
+The security rows are heuristics, not a full security audit: a third-party
+antivirus can make Defender look off, and the registry values are only as
+trustworthy as the machine. Nothing is sent over the network.
+
 ## Future
 
 - USB key: file token + volume serial, hashed in config.

@@ -14,9 +14,9 @@ laptop, useless against someone who knows what they are doing. See
 
 **v0.2 in progress — daily commits.**
 
-![TermLock lock screen](docs/screenshot-lock.png)
+![TermLock lock screen](docs/screenshot-lock.png?v=3)
 
-*Current lock screen: full-body digit rain, stats panel and terminal art.*
+*Current lock screen: full-body digit rain, live system stats and terminal art.*
 
 ### Works today
 
@@ -27,6 +27,7 @@ laptop, useless against someone who knows what they are doing. See
 - keyboard layout badge `[EN]` / `[RU]` with `CAPS` and `CYR` warnings
 - keyboard guard while locked: `Win`, `Alt+Tab`, `Alt+F4`, `Ctrl+Esc`, `PrintScreen`
 - double-tap `Caps Lock` to summon the curtain
+- live CPU / RAM / disk bars, Defender, firewall and Secure Boot checks
 - attempt counter with a cooldown
 - tray icon: lock / set profile / open config folder / exit
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
@@ -35,7 +36,6 @@ laptop, useless against someone who knows what they are doing. See
 
 ### Planned
 
-- real system probes: CPU, RAM, disk, Defender, firewall, Secure Boot
 - watchdog process
 - USB key unlock
 - recovery code

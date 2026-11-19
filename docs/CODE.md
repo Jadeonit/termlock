@@ -329,3 +329,27 @@ SetWindowsHookEx(WH_KEYBOARD_LL, _proc, GetModuleHandle(null), 0);
 - оба нажатия проходят дальше, поэтому состояние Caps Lock в итоге не меняется.
 
 Хук смотрит только коды клавиш. Текст пароля он не читает и никуда не пишет.
+
+## 14. Реальные статы
+
+`Core/SystemStats.cs` собирает данные без WMI, без админа и без сети:
+
+- **CPU** — `GetSystemTimes`: берём дельты `idle`, `kernel`, `user` между
+  вызовами; `kernel` уже включает `idle`, поэтому занятость считается как
+  `1 - idle / (kernel + user)`.
+- **RAM** — `GlobalMemoryStatusEx`: `dwMemoryLoad` даёт процент, а
+  `ullTotalPhys` / `ullAvailPhys` — гигабайты.
+- **Диск** — `DriveInfo` для системного диска: `TotalSize`,
+  `AvailableFreeSpace`.
+- **Defender** — процесс `MsMpEng` плюс ветки реестра
+  `DisableRealtimeMonitoring` и `DisableAntiSpyware`.
+- **Firewall** — `EnableFirewall` в профилях Domain/Standard/Public.
+- **Secure Boot** — `UEFISecureBootEnabled` в
+  `HKLM\SYSTEM\CurrentControlSet\Control\SecureBoot\State`.
+
+`SystemStats.Bar()` рисует полоску из `█` и `░`, например
+`[██████░░░░]`. `MainWindow` обновляет статы раз в секунду, пока ширма видна,
+а `RenderToFile()` делает `Refresh()` перед скриншотом.
+
+Проверки безопасности — эвристики: сторонний антивирус может выключить Defender,
+и тогда строка покажет `OFF`. Это не аудит, а быстрый индикатор.

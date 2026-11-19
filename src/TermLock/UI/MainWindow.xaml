@@ -53,7 +53,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Background="#F2000000"
+                        Background="#F7000000"
                         Padding="18,14">
                     <Grid>
                         <Grid.RowDefinitions>

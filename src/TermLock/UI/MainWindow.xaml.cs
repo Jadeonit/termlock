@@ -19,6 +19,7 @@ namespace TermLock.UI;
 public partial class MainWindow : Window
 {
     private readonly AppConfig _config;
+    private readonly SystemStats _stats;
     private readonly DispatcherTimer _clock;
     private readonly DispatcherTimer _cursorBlink;
     private readonly DispatcherTimer _keepOnTop;
@@ -43,13 +44,19 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _config = config;
+        _stats = new SystemStats();
 
         _keyboard = new KeyboardHook(() => IsVisible, ShowLock);
 
         _clock = new DispatcherTimer(
             TimeSpan.FromSeconds(1),
             DispatcherPriority.Background,
-            (_, _) => UpdateHeader(),
+            (_, _) =>
+            {
+                _stats.Refresh();
+                UpdateHeader();
+                UpdateStats();
+            },
             Dispatcher);
 
         _cursorBlink = new DispatcherTimer(
@@ -93,6 +100,8 @@ public partial class MainWindow : Window
         Topmost = true;
         UpdateStatus("awaiting passphrase");
         UpdateLayoutIndicator();
+        _stats.ResetCpuBaseline();
+        UpdateStats();
 
         _clock.Start();
         _cursorBlink.Start();
@@ -107,6 +116,8 @@ public partial class MainWindow : Window
     /// </summary>
     public void RenderToFile(string path)
     {
+        _stats.Refresh();
+        UpdateStats();
         UpdateLayout();
 
         var width = (int)Math.Max(1, ActualWidth);
@@ -194,19 +205,26 @@ public partial class MainWindow : Window
             ? $"{Math.Ceiling((_cooldownUntil - DateTime.UtcNow).TotalSeconds):0}s"
             : "-";
 
+        var secureBoot = _stats.SecureBoot switch
+        {
+            true => "ON",
+            false => "OFF",
+            _ => "N/A"
+        };
+
         StatsText.Text = $"""
 SYSTEM
   user       {_config.UserName}
   os         {SystemInfo.WindowsProduct()}
   uptime     {uptime.Days}d {uptime.Hours:00}h {uptime.Minutes:00}m
-  cpu        [ -- ]  day 6
-  ram        [ -- ]  day 6
-  disk       [ -- ]  day 6
+  cpu        [{SystemStats.Bar(_stats.CpuPercent)}] {_stats.CpuPercent:0}%
+  ram        [{SystemStats.Bar(_stats.RamPercent)}] {_stats.RamPercent:0}%  {_stats.RamUsedGb:0.0}/{_stats.RamTotalGb:0.0} GB
+  disk       [{SystemStats.Bar(_stats.DiskPercent)}] {_stats.DiskPercent:0}%  {_stats.DiskFreeGb:0.0}/{_stats.DiskTotalGb:0.0} GB free
 
 SECURITY
-  defender   ....... day 6
-  firewall   ....... day 6
-  secureboot ....... day 6
+  defender   ....... {(_stats.DefenderActive ? "ACTIVE" : "OFF")}
+  firewall   ....... {(_stats.FirewallActive ? "ACTIVE" : "OFF")}
+  secureboot ....... {secureBoot}
   curtain    ....... ARMED
 
 AUTH
