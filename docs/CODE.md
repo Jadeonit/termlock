@@ -378,3 +378,32 @@ USB-ключ (`Core/UsbKey.cs`):
 
 Проверка алгоритма recovery-кода отдельным консольным тестом: генерация,
 lowercase, вариант без дефисов — `True`; случайный код — `False`.
+
+## 16. ntfy и действие после трёх неудач
+
+`Core/NtfyNotifier.cs`:
+
+- статический `HttpClient` с таймаутом 5 секунд;
+- POST на `{NtfyUrl}/{Uri.EscapeDataString(NtfyTopic)}`;
+- заголовки `Title`, `Priority`, `Tags`;
+- если `NtfyEnabled` выключен или топик пуст — молчит;
+- ограничение частоты по `NtfyMinIntervalSeconds` (по умолчанию 10);
+- ошибки пишутся в лог без топика; исключения не всплывают в UI.
+
+`MainWindow`:
+
+- каждый `Fail` шлёт `warning`; на третьем — `urgent` с `force: true`;
+- `BeginFailAction()` читает `FailAction` (`Shutdown`/`Sleep`/`Hibernate`/
+  `Lock`/`None`) и `FailActionSeconds`, запускает `_failTimer`;
+- `TickFailAction()` обновляет строку статуса и по нулю вызывает
+  `ExecuteFailAction()`;
+- `ExecuteFailAction()` запускает `shutdown.exe /s /t 0`, `shutdown.exe /h`,
+  `rundll32 powrprof.dll,SetSuspendState` или `LockWorkStation`;
+- `Unlock()` останавливает `_failTimer` и сбрасывает `_failAt`, поэтому
+  правильная фраза/recovery/USB отменяет отсчёт;
+- `Fail()` при активном отсчёте не увеличивает счётчик и не перезапускает
+  таймер — просто показывает, сколько осталось.
+
+`Sleep`/`Hibernate` могут не сработать, если в системе нет соответствующих
+режимов (у ноута с Modern Standby их может не быть). Тогда лучше `Shutdown`
+или `None`.

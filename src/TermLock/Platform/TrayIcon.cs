@@ -17,12 +17,14 @@ public sealed class TrayIcon : IDisposable
         Action exitAction,
         Action openConfig,
         Action setPassphrase,
-        Action createUsbKey)
+        Action createUsbKey,
+        Action notifications)
     {
         var menu = new ContextMenuStrip();
         menu.Items.Add("Lock now", null, (_, _) => lockAction());
         menu.Items.Add("Set profile...", null, (_, _) => setPassphrase());
         menu.Items.Add("Create USB key...", null, (_, _) => createUsbKey());
+        menu.Items.Add("Notifications...", null, (_, _) => notifications());
         menu.Items.Add("Open config folder", null, (_, _) => openConfig());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => exitAction());

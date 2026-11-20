@@ -179,6 +179,19 @@ Neither path is a substitute for BitLocker: someone with the drive or the
 recovery code can still unlock. They exist so the owner cannot be locked out by
 a forgotten passphrase.
 
+## Notifications and fail action
+
+`Core/NtfyNotifier.cs` sends a fire-and-forget HTTP POST to
+`{url}/{topic}`. It never blocks the lock screen, times out after 5 seconds, and
+rate-limits messages per process. The topic is a secret and is never logged.
+
+On every failed attempt the curtain sends a `warning` notification. On the third
+failure it arms `FailAction` (`Shutdown`, `Sleep`, `Hibernate`, `Lock`, `None`)
+with a visible countdown (`FailActionSeconds`). The correct passphrase,
+recovery code or USB key cancels the countdown. `Shutdown` is executed with
+`shutdown.exe /s /t 0`; `Sleep` via `rundll32 powrprof.dll,SetSuspendState`;
+`Hibernate` via `shutdown.exe /h`; `Lock` via `LockWorkStation`.
+
 ## Future
 
 - USB key: file token + volume serial, hashed in config.

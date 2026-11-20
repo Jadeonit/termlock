@@ -97,6 +97,41 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // Dev/CI: render the alerts dialog.
+        if (args.Contains("--notifications-shot"))
+        {
+            var alerts = new NotificationsWindow(_config);
+            alerts.Show();
+
+            var path = Path.Combine(AppPaths.Root, "notifications-shot.png");
+            var shotTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(500)
+            };
+
+            shotTimer.Tick += (_, _) =>
+            {
+                shotTimer.Stop();
+                try
+                {
+                    RenderWindowToFile(alerts, path);
+                    Log.Write("notifications shot written: " + path);
+                }
+                catch (Exception ex)
+                {
+                    Log.Write("notifications shot failed: " + ex);
+                }
+                finally
+                {
+                    alerts.Close();
+                    Shutdown();
+                }
+            };
+
+            shotTimer.Start();
+            return;
+        }
+
         // Dev/CI: render the curtain and exit. This path runs before the
         // single-instance mutex, the tray icon and the hotkey, so screenshot
         // runs never block a live TermLock and never leave ghost tray icons.
@@ -184,7 +219,8 @@ public partial class App : System.Windows.Application
             exitAction: Shutdown,
             openConfig: () => Process.Start("explorer.exe", AppPaths.Root),
             setPassphrase: () => ShowSetup(),
-            createUsbKey: ShowUsbKey);
+            createUsbKey: ShowUsbKey,
+            notifications: ShowNotifications);
 
         // Global hotkey: Ctrl+Alt+Shift+L
         _hotkeys = new HotkeyHost();
@@ -253,6 +289,12 @@ public partial class App : System.Windows.Application
     private void ShowUsbKey()
     {
         var window = new UsbKeyWindow(_config);
+        window.ShowDialog();
+    }
+
+    private void ShowNotifications()
+    {
+        var window = new NotificationsWindow(_config);
         window.ShowDialog();
     }
 

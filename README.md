@@ -35,12 +35,11 @@ laptop, useless against someone who knows what they are doing. See
 - autostart via `HKCU\...\Run` (no admin, no service, no driver)
 - single instance, append-only log
 - animated digit rain (glyph atlas + `WriteableBitmap`, 30 FPS)
+- ntfy alerts and a configurable fail action after 3 failed attempts
 
 ### Planned
 
 - watchdog process
-- ntfy alerts on failed attempts (phone + watch)
-- configurable action after 3 failed attempts (Shutdown by default)
 - guest mode — postponed for now
 
 See [ROADMAP.md](ROADMAP.md).
@@ -105,6 +104,21 @@ The recovery code is shown **once** and stored as SHA-256. The USB key is a
 random token in `termlock.key`, bound to the drive's volume serial. Remove the
 drive before locking and plug it back in to unlock; if it is already inserted
 when you lock, remove and reinsert it — TermLock only unlocks on insertion.
+
+## Alerts and fail action
+
+Tray → `Notifications...`:
+
+![Alerts and fail action](docs/screenshot-alerts.png)
+
+- ntfy URL and topic; the topic is a secret, so use a long random one.
+- `[ test ]` sends a test notification.
+- After 3 failed attempts: `Shutdown` (default), `Sleep`, `Hibernate`, `Lock`
+  or `None`.
+- The action has a countdown (15 seconds by default). The correct passphrase,
+  recovery code or USB key cancels it.
+- `Shutdown` is real. Don't test it with unsaved work; set `None` while
+  experimenting.
 
 **Later.** Right-click the tray icon → `Set profile...`, or run:
 

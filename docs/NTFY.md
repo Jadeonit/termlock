@@ -149,18 +149,20 @@ ntfy access jadeonit jadeonit-termlock read-write
 
 Дальше — reverse proxy с TLS (Caddy, nginx) и, при желании, access tokens.
 
-## Как это будет в TermLock (Day 8)
+## Как это в TermLock
 
-Конфиг:
+Настройка: трей → `Notifications...`. Там же кнопка `[ test ]`.
+
+Конфиг (`%APPDATA%\TermLock\config.json`):
 
 ```json
 {
-  "notifications": {
-    "provider": "ntfy",
-    "url": "https://ntfy.sh",
-    "topic": "REPLACE_WITH_RANDOM_TOPIC",
-    "minIntervalSeconds": 10
-  }
+  "ntfyEnabled": true,
+  "ntfyUrl": "https://ntfy.sh",
+  "ntfyTopic": "REPLACE_WITH_RANDOM_TOPIC",
+  "ntfyMinIntervalSeconds": 10,
+  "failAction": "Shutdown",
+  "failActionSeconds": 15
 }
 ```
 
@@ -168,9 +170,12 @@ ntfy access jadeonit jadeonit-termlock read-write
 
 - отправка в фоне, с таймаутом 5 секунд;
 - не блокирует ввод и разблокировку;
-- не чаще одного сообщения в `minIntervalSeconds`, чтобы спамер не завалил часы;
+- не чаще одного сообщения в `ntfyMinIntervalSeconds`;
 - при ошибке сети — запись в лог и тишина;
-- события: `failed`, `locked_out`, `unlocked`, `usb`, `recovery`.
+- каждые неудачные попытки — `warning`;
+- третья неудача — `urgent` и запуск `failAction` с отсчётом;
+- правильная фраза, recovery-код или USB-ключ отменяют действие;
+- `failAction`: `Shutdown`, `Sleep`, `Hibernate`, `Lock`, `None`.
 
 ## Альтернативы
 

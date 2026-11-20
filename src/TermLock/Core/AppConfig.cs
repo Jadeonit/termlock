@@ -52,8 +52,16 @@ public sealed class AppConfig
     public int MaxAttempts { get; set; } = 3;
     public int CooldownSeconds { get; set; } = 10;
 
-    /// <summary>Shutdown / Sleep / Hibernate / Lock / None. Wired up on Day 8.</summary>
+    /// <summary>Shutdown / Sleep / Hibernate / Lock / None after max attempts.</summary>
     public string FailAction { get; set; } = "Shutdown";
+
+    /// <summary>How long the on-screen countdown runs before the fail action.</summary>
+    public int FailActionSeconds { get; set; } = 15;
+
+    public bool NtfyEnabled { get; set; }
+    public string NtfyUrl { get; set; } = "https://ntfy.sh";
+    public string NtfyTopic { get; set; } = "";
+    public int NtfyMinIntervalSeconds { get; set; } = 10;
 
     public bool LockOnStart { get; set; }
 

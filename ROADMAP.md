@@ -12,8 +12,7 @@ slice that builds, runs, and can be tested on the real machine.
 | 5 | Keyboard guard: block `Win`/`Alt+Tab`/`Alt+F4`/`Ctrl+Esc`/`PrintScreen`, double Caps | `feat(guard): keyboard hook + double Caps` |
 | 6 | Real stats: CPU, RAM, disk, Defender, firewall, Secure Boot | `feat(stats): system probes` |
 | 7 | USB key unlock, recovery code, first-run wizard | `feat(auth): usb key + recovery` |
-| 8 | ntfy alerts, configurable fail action (Shutdown by default) | `feat(notify): alerts + fail action` |
-| 9 | Installer scripts, GitHub Actions, screenshots, GIF | `chore: packaging + ci` |
+| 8 | ntfy alerts, configurable fail action (Shutdown by default) | `feat(notify): alerts + fail action` || 9 | Installer scripts, GitHub Actions, screenshots, GIF | `chore: packaging + ci` |
 | 10 | v0.1 release: docs pass, code review, tag | `chore: release v0.1` |
 
 ## Backlog
@@ -34,3 +33,4 @@ slice that builds, runs, and can be tested on the real machine.
 - [x] Day 5 — keyboard guard + double Caps
 - [x] Day 6 — live CPU/RAM/disk/Defender/firewall/Secure Boot
 - [x] Day 7 — USB key + recovery code
+- [x] Day 8 — ntfy alerts + fail action

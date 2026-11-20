@@ -1,5 +1,7 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -20,14 +22,18 @@ public partial class MainWindow : Window
 {
     private readonly AppConfig _config;
     private readonly SystemStats _stats;
+    private readonly NtfyNotifier _notifier;
     private readonly DispatcherTimer _clock;
     private readonly DispatcherTimer _cursorBlink;
     private readonly DispatcherTimer _keepOnTop;
     private readonly DispatcherTimer _usbPoll;
+    private readonly DispatcherTimer _failTimer;
     private readonly KeyboardHook _keyboard;
 
     private int _attempts;
     private DateTime _cooldownUntil = DateTime.MinValue;
+    private DateTime _failAt = DateTime.MinValue;
+    private string _failAction = "shutdown";
     private bool _cursorVisible = true;
     private bool _allowClose;
     private bool _usbPresent;
@@ -47,6 +53,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _config = config;
         _stats = new SystemStats();
+        _notifier = new NtfyNotifier(config);
 
         _keyboard = new KeyboardHook(() => IsVisible, ShowLock);
 
@@ -79,6 +86,12 @@ public partial class MainWindow : Window
             (_, _) => PollUsb(),
             Dispatcher);
 
+        _failTimer = new DispatcherTimer(
+            TimeSpan.FromSeconds(1),
+            DispatcherPriority.Background,
+            (_, _) => TickFailAction(),
+            Dispatcher);
+
         HiddenInput.PasswordChanged += (_, _) => UpdatePrompt();
         PreviewKeyDown += OnPreviewKeyDown;
         PreviewKeyUp += OnPreviewKeyUp;
@@ -106,6 +119,8 @@ public partial class MainWindow : Window
         Keyboard.Focus(HiddenInput);
 
         Topmost = true;
+        _failTimer.Stop();
+        _failAt = DateTime.MinValue;
         UpdateStatus("awaiting passphrase");
         UpdateLayoutIndicator();
         _stats.ResetCpuBaseline();
@@ -293,6 +308,7 @@ AUTH
 
     protected override void OnClosed(EventArgs e)
     {
+        _failTimer.Stop();
         _usbPoll.Stop();
         _keyboard.Dispose();
         InputLanguageManager.Current.InputLanguageChanged -= OnInputLanguageChanged;
@@ -417,7 +433,11 @@ AUTH
 
     private void Unlock(string method)
     {
+        var hadFailures = _attempts > 0;
+        var wasPending = _failAt > DateTime.UtcNow;
         _attempts = 0;
+        _failTimer.Stop();
+        _failAt = DateTime.MinValue;
         HiddenInput.Clear();
         Log.Write($"unlock ok ({method})");
         UpdateStatus("access granted");
@@ -426,23 +446,38 @@ AUTH
         _cursorBlink.Stop();
         _keepOnTop.Stop();
         _usbPoll.Stop();
-        Hide();
 
+        if (method != "passphrase" || hadFailures || wasPending)
+        {
+            _notifier.Notify("TermLock", $"Unlocked with {method}", "white_check_mark", "high");
+        }
+
+        Hide();
         Unlocked?.Invoke(this, EventArgs.Empty);
     }
 
     private void Fail(string reason)
     {
+        if (_failAt > DateTime.UtcNow)
+        {
+            HiddenInput.Clear();
+            var pending = Math.Ceiling((_failAt - DateTime.UtcNow).TotalSeconds);
+            UpdateStatus($"FATAL · {ActionLabel(_failAction)} in {pending:0}s · passphrase cancels");
+            return;
+        }
+
         _attempts++;
         Log.Write($"unlock failed ({reason}) ({_attempts}/{_config.MaxAttempts})");
         HiddenInput.Clear();
+        _notifier.Notify(
+            "TermLock",
+            $"Failed attempt {_attempts}/{_config.MaxAttempts}",
+            "warning");
 
         if (_attempts >= _config.MaxAttempts)
         {
             _attempts = 0;
-            _cooldownUntil = DateTime.UtcNow.AddSeconds(_config.CooldownSeconds);
-            UpdateStatus(
-                $"ACCESS DENIED · too many attempts · cooldown {_config.CooldownSeconds}s");
+            BeginFailAction();
         }
         else
         {
@@ -451,6 +486,124 @@ AUTH
 
         UpdateStats();
     }
+
+    private void BeginFailAction()
+    {
+        _failAction = NormalizeFailAction(_config.FailAction);
+
+        if (_failAction == "none")
+        {
+            _cooldownUntil = DateTime.UtcNow.AddSeconds(_config.CooldownSeconds);
+            UpdateStatus($"ACCESS DENIED · too many attempts · cooldown {_config.CooldownSeconds}s");
+            _notifier.Notify(
+                "TermLock",
+                "Too many attempts. Cooldown.",
+                "warning",
+                "high",
+                force: true);
+            return;
+        }
+
+        var seconds = Math.Clamp(_config.FailActionSeconds, 3, 300);
+        _failAt = DateTime.UtcNow.AddSeconds(seconds);
+        _failTimer.Start();
+
+        UpdateStatus(
+            $"FATAL · too many attempts · {ActionLabel(_failAction)} in {seconds}s · passphrase cancels");
+        _notifier.Notify(
+            "TermLock",
+            $"Too many attempts. {ActionLabel(_failAction)} in {seconds}s.",
+            "skull",
+            "urgent",
+            force: true);
+        Log.Write($"fail action armed: {_failAction} in {seconds}s");
+    }
+
+    private void TickFailAction()
+    {
+        if (_failAt == DateTime.MinValue)
+        {
+            _failTimer.Stop();
+            return;
+        }
+
+        var remaining = (_failAt - DateTime.UtcNow).TotalSeconds;
+        if (remaining > 0)
+        {
+            UpdateStatus(
+                $"FATAL · {ActionLabel(_failAction)} in {Math.Ceiling(remaining):0}s · passphrase cancels");
+            return;
+        }
+
+        _failTimer.Stop();
+        _failAt = DateTime.MinValue;
+        ExecuteFailAction();
+    }
+
+    private void ExecuteFailAction()
+    {
+        var action = _failAction;
+        Log.Write($"executing fail action: {action}");
+        _notifier.Notify(
+            "TermLock",
+            $"Executing {ActionLabel(action)}.",
+            "skull",
+            "urgent",
+            force: true);
+
+        try
+        {
+            switch (action)
+            {
+                case "sleep":
+                    Process.Start(new ProcessStartInfo(
+                        "rundll32.exe",
+                        "powrprof.dll,SetSuspendState 0,1,0")
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    });
+                    break;
+
+                case "hibernate":
+                    Process.Start(new ProcessStartInfo("shutdown.exe", "/h")
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    });
+                    break;
+
+                case "lock":
+                    LockWorkStation();
+                    break;
+
+                case "shutdown":
+                default:
+                    Process.Start(new ProcessStartInfo("shutdown.exe", "/s /t 0")
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    });
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Write("fail action failed: " + ex.Message);
+        }
+    }
+
+    private static string NormalizeFailAction(string value) =>
+        value?.Trim().ToLowerInvariant() switch
+        {
+            "sleep" => "sleep",
+            "hibernate" => "hibernate",
+            "lock" => "lock",
+            "none" => "none",
+            _ => "shutdown"
+        };
+
+    private static string ActionLabel(string action) => action.ToUpperInvariant();
 
     private void PollUsb()
     {
@@ -474,4 +627,7 @@ AUTH
             UpdateStats();
         }
     }
+
+    [DllImport("user32.dll")]
+    private static extern bool LockWorkStation();
 }
